@@ -1,5 +1,9 @@
 @use '@angular/material' as mat;
 
+
+$foreground: #fff;
+$background: #ddd;
+
 // Define the theme object.
 $agile-analytics-theme: mat.define-theme((
   color: (

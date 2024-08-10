@@ -1,0 +1,12 @@
+@use 'utils' as *;
+
+:host {
+  @extend .full-height;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper {
+  height: 500px;
+  width: 500px;
+}
