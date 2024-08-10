@@ -1,19 +1,31 @@
-import {AfterViewInit, Component, ElementRef, inject, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  inject, signal,
+  viewChild
+} from '@angular/core';
 import {VelocityScatterChart} from "./velocityScatterChart";
+import {SpinnerOverlay} from "../components/spinner-overlay.component";
+
 
 @Component({
   selector: 'velocity-scatter',
   standalone: true,
-  imports: [],
+  imports: [
+    SpinnerOverlay
+  ],
   templateUrl: './velocity-scatter.component.html',
   styleUrl: './velocity-scatter.component.scss',
   providers: [VelocityScatterChart]
 })
-export class VelocityScatterComponent implements AfterViewInit {
-  @ViewChild('svg') svgElement!: ElementRef<SVGSVGElement>
+export class VelocityScatterComponent implements AfterViewChecked {
+  svgElement = viewChild.required<ElementRef<SVGSVGElement>>('svg');
   private chart = inject(VelocityScatterChart);
 
-  ngAfterViewInit() {
-    this.chart.init(this.svgElement.nativeElement);
+  isLoading = signal<boolean>(true)
+
+  ngAfterViewChecked() {
+    this.chart.init(this.svgElement().nativeElement);
   }
 }
