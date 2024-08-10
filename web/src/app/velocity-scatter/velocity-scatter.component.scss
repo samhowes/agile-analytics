@@ -13,3 +13,13 @@
   border: 1px solid rgba(0,0,0,0.2);
   padding: 1rem;
 }
+
+
+:host::ng-deep svg {
+  .work-items {
+    fill: red;
+    stroke: blue;
+    stroke-width: 1px;
+  }
+}
+

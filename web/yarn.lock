@@ -2409,6 +2409,11 @@
   resolved "https://registry.yarnpkg.com/@types/retry/-/retry-0.12.2.tgz#ed279a64fa438bb69f2480eda44937912bb7480a"
   integrity sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==
 
+"@types/seedrandom@^3.0.8":
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/@types/seedrandom/-/seedrandom-3.0.8.tgz#61cc8ed88f93a3c31289c295e6df8ca40be42bdf"
+  integrity sha512-TY1eezMU2zH2ozQoAFAQFOPpvP15g+ZgSfTZt31AUUH/Rxtnz3H+A/Sv1Snw2/amp//omibc+AEkTaA8KUeOLQ==
+
 "@types/send@*":
   version "0.17.4"
   resolved "https://registry.yarnpkg.com/@types/send/-/send-0.17.4.tgz#6619cd24e7270793702e4e6a4b958a9010cfc57a"
@@ -6300,6 +6305,11 @@ schema-utils@^4.0.0, schema-utils@^4.2.0:
     ajv "^8.9.0"
     ajv-formats "^2.1.1"
     ajv-keywords "^5.1.0"
+
+seedrandom@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/seedrandom/-/seedrandom-3.0.5.tgz#54edc85c95222525b0c7a6f6b3543d8e0b3aa0a7"
+  integrity sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==
 
 select-hose@^2.0.0:
   version "2.0.0"
