@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, ElementRef, inject, OnInit, signal, viewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, Component, ElementRef, inject, OnInit, signal, viewChild} from '@angular/core';
 import {VelocityScatterChart} from "./velocityScatterChart";
 import {SpinnerOverlay} from "../components/spinner-overlay.component";
 import {WorkItemService} from "./work-item.service";
@@ -15,7 +15,7 @@ import {combineLatest, forkJoin} from "rxjs";
   styleUrl: './velocity-scatter.component.scss',
   providers: [VelocityScatterChart]
 })
-export class VelocityScatterComponent implements AfterViewChecked, OnInit {
+export class VelocityScatterComponent implements AfterViewInit, OnInit {
   svgElement = viewChild.required<ElementRef<SVGSVGElement>>('svg');
   private chart = inject(VelocityScatterChart);
   private workItemService = inject(WorkItemService);
@@ -29,7 +29,7 @@ export class VelocityScatterComponent implements AfterViewChecked, OnInit {
     })
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewInit() {
     this.chart.init(this.svgElement().nativeElement);
   }
 }
