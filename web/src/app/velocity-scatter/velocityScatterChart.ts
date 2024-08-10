@@ -77,6 +77,7 @@ export class VelocityScatterChart {
   public init$ = new Subject<void>();
   private cursor!: Cursor;
   private cursorGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private pointRadius!: number;
 
   init(svgElement: SVGSVGElement) {
     this.svgElement = svgElement
@@ -116,6 +117,7 @@ export class VelocityScatterChart {
       new Rect(rect.width, rect.height),
       this.margins
     )
+    this.pointRadius = Math.sqrt(.0006 * this.box.inner.width * this.box.inner.height / Math.PI)
   }
 
   private initElements() {
@@ -133,7 +135,7 @@ export class VelocityScatterChart {
     this.points = this.points.data(workItems, d => d.id)
       .join("circle")
       .attr('transform',d => `translate(${this.xScale(d.time)}, ${this.yScale(d.points)})`)
-      .attr("r", 3)
+      .attr("r", this.pointRadius)
   }
 
   private initCursor() {
