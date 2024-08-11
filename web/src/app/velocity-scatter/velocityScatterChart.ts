@@ -11,6 +11,7 @@ export class VelocityScatterConfig {
   pointRadius = 8;
   timeMax = 100;
   pointsMax = 13;
+  timeUnit = "hrs";
 }
 
 export class HoverEvent {
@@ -108,13 +109,8 @@ export class VelocityScatterChart {
       .join<SVGCircleElement, WorkItem>(enter => {
         const circle = enter.append("circle")
           circle.on("mouseenter", (_, d) => {
-          let location: Point = {
-            x: this.xScale(d.time),
-            y: this.yScale(d.points)
-          }
-          location = this.svgRect.unmap(location)
-          this.hover$.next(new HoverEvent(d, location))
-        })
+            this.onHover(d);
+          })
         circle.on("mouseleave", (_, d) => {
           this.hover$.next(null)
         })
@@ -123,6 +119,17 @@ export class VelocityScatterChart {
         exit => exit.remove())
       .attr('transform',d => `translate(${this.xScale(d.time)}, ${this.yScale(d.points)})`)
       .attr("r", this.config.pointRadius)
+
+    this.onHover(workItems[workItems.length - 1])
+  }
+
+  private onHover(d: WorkItem) {
+    let location: Point = {
+      x: this.xScale(d.time),
+      y: this.yScale(d.points)
+    }
+    location = this.svgRect.unmap(location)
+    this.hover$.next(new HoverEvent(d, location))
   }
 
   private initCursor() {

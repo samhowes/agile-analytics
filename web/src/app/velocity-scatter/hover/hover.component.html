@@ -1,6 +1,10 @@
-<mat-card class="menu mat-elevation-z2" [ngStyle]="display.styles"
-          (mouseenter)="display.mouseenter()"
-          (mouseleave)="display.mouseleave()"
+<div class="wrapper mat-elevation-z2"
+     *ngIf="display.workItem"
+     [ngStyle]="display.styles"
+      (mouseenter)="display.mouseenter()"
+      (mouseleave)="display.mouseleave()"
 >
-  Hover works!
-</mat-card>
+  <a href="https://nowhere.com/{{display.workItem.id}}">{{display.workItem.id}}: {{display.workItem.title}}</a>
+  <span>{{display.workItem.points}} pts, {{display.workItem.time}} {{config.timeUnit}}</span>
+  <span>{{display.workItem.assignee}}</span>
+</div>

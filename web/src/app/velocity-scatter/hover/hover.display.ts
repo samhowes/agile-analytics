@@ -6,7 +6,6 @@ import {BehaviorSubject} from "rxjs";
 export class HoverDisplay {
   styles: ObjMap<any> = {}
   workItem: WorkItem|null = null
-  isActive = false;
   active$ = new BehaviorSubject<boolean>(false)
 
   constructor() {
@@ -23,7 +22,6 @@ export class HoverDisplay {
   }
 
   hide() {
-    this.isActive = false;
     this.workItem = null
     this.styles = {
       "display": "none"
@@ -31,14 +29,10 @@ export class HoverDisplay {
   }
 
   mouseenter() {
-    console.log('hover mouseenter')
-    this.isActive = true
     this.active$.next(true)
   }
 
   mouseleave() {
-    console.log('hover mouseleave')
-    this.isActive = false;
     this.active$.next(false)
   }
 }

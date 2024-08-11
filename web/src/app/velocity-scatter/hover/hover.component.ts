@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import {HoverDisplay} from "@app/velocity-scatter/hover/hover.display";
 import {combineLatest, debounceTime} from "rxjs";
-import {VelocityScatterChart} from "@app/velocity-scatter/velocityScatterChart";
+import {VelocityScatterChart, VelocityScatterConfig} from "@app/velocity-scatter/velocityScatterChart";
 import {MatCard} from "@angular/material/card";
-import {NgStyle} from "@angular/common";
+import {NgIf, NgStyle} from "@angular/common";
 
 @Component({
   selector: 'hover',
@@ -11,12 +11,16 @@ import {NgStyle} from "@angular/common";
   imports: [
     MatCard,
     NgStyle,
+    NgIf,
   ],
   templateUrl: './hover.component.html',
   styleUrl: './hover.component.scss'
 })
 export class HoverComponent {
   display = new HoverDisplay()
+  get config(): VelocityScatterConfig {
+    return this.chart.config
+  }
 
   constructor(
     private chart: VelocityScatterChart,
@@ -25,7 +29,7 @@ export class HoverComponent {
       this.chart.hover$,
       this.display.active$
     ])
-      .pipe(debounceTime(300))
+      .pipe(debounceTime(150))
       .subscribe(result => {
         const event = result[0]
         const isActive = result[1]

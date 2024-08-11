@@ -1,0 +1,22 @@
+@use 'theme' as *;
+@use "@angular/material" as mat;
+
+.wrapper {
+  border-radius: 4px;
+  font-size: .7rem;
+  padding: .5rem;
+
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    color: mat.get-theme-color($theme, primary, 40);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
