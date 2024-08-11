@@ -29,6 +29,7 @@ export class WorkItemService {
     return new BehaviorSubject<WorkItem[]>([
       WorkItems.completed(3, 10),
       WorkItems.completed(5, 50),
+      WorkItems.completed(5, 49),
     ])
   }
 }

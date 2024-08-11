@@ -1,15 +1,24 @@
 import * as d3 from 'd3';
 import {WorkItem} from "./work-item.service";
 import {Subject} from "rxjs";
-import {Rect} from "./rect";
+import {Point, Rect} from "./rect";
 import {Cursor} from "./cursor";
 import {ChartBox, Margins} from "./chartBox";
 import {ContainerSelection, DataSelection} from "./d3";
+import {EnterElement} from "d3";
 
 export class VelocityScatterConfig {
-  pointRadius = 5;
+  pointRadius = 8;
   timeMax = 100;
   pointsMax = 13;
+}
+
+export class HoverEvent {
+  constructor(
+    public workItem: WorkItem,
+    public location: Point,
+  ) {
+  }
 }
 
 export class VelocityScatterChart {
@@ -27,12 +36,14 @@ export class VelocityScatterChart {
   private pointsGroup!: ContainerSelection
   private points!: DataSelection<SVGCircleElement, WorkItem>
 
-  public init$ = new Subject<void>();
   private cursor!: Cursor;
   private cursorGroup!: ContainerSelection
 
   config!: VelocityScatterConfig
   private data: WorkItem[] = [];
+
+  init$ = new Subject<void>();
+  hover$ = new Subject<HoverEvent|null>();
 
   init(config: VelocityScatterConfig, svgElement: SVGSVGElement) {
     this.config = config
@@ -93,8 +104,23 @@ export class VelocityScatterChart {
   setData(workItems: WorkItem[]) {
     this.data = workItems
     this.points = this.pointsGroup.selectAll('circle')
-    this.points = this.points.data(workItems, d => d.id)
-      .join("circle")
+    this.points = this.points.data<WorkItem>(workItems, d => d.id)
+      .join<SVGCircleElement, WorkItem>(enter => {
+        const circle = enter.append("circle")
+          circle.on("mouseenter", (_, d) => {
+          let location: Point = {
+            x: this.xScale(d.time),
+            y: this.yScale(d.points)
+          }
+          location = this.svgRect.unmap(location)
+          this.hover$.next(new HoverEvent(d, location))
+        })
+        circle.on("mouseleave", (_, d) => {
+          this.hover$.next(null)
+        })
+        return circle
+      }, update => update,
+        exit => exit.remove())
       .attr('transform',d => `translate(${this.xScale(d.time)}, ${this.yScale(d.points)})`)
       .attr("r", this.config.pointRadius)
   }

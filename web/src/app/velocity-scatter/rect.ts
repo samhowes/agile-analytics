@@ -26,4 +26,11 @@ export class Rect {
       y: p.y - this.y,
     }
   }
+
+  unmap(p: Point): Point {
+    return {
+      x: p.x + this.x,
+      y: p.y + this.y
+    };
+  }
 }

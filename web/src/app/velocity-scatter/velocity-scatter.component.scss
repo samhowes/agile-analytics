@@ -18,6 +18,7 @@
 
 :host::ng-deep svg {
   .work-items {
+    cursor: pointer;
     fill: mat.get-theme-color($theme, primary, 80);
     stroke: mat.get-theme-color($theme, primary, 60);
     stroke-width: 1px;
@@ -25,6 +26,7 @@
   .cursor {
     stroke: rgba(0,0,0,.2);
     stroke-width: 1px;
+    pointer-events: none;
   }
 }
 
