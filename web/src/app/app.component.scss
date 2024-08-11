@@ -3,10 +3,10 @@
 :host {
   @extend .full-height;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
 }
 
 .wrapper {
-  height: 500px;
-  width: 500px;
+  flex: 1;
+  max-height: 500px;
 }

@@ -20,7 +20,7 @@ export class Rect {
       && this.top <= p.y && p.y <= this.bottom // screen coordinates! top is zero pixels!
   }
 
-  translate(p: Point) {
+  mapPoint(p: Point) {
     return {
       x: p.x - this.x,
       y: p.y - this.y,
