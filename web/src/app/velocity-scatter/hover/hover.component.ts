@@ -3,7 +3,7 @@ import {HoverDisplay} from "@app/velocity-scatter/hover/hover.display";
 import {combineLatest, debounceTime} from "rxjs";
 import {VelocityScatterChart, VelocityScatterConfig} from "@app/velocity-scatter/velocityScatterChart";
 import {MatCard} from "@angular/material/card";
-import {NgIf, NgStyle} from "@angular/common";
+import {NgClass, NgIf, NgStyle} from "@angular/common";
 
 @Component({
   selector: 'hover',
@@ -11,6 +11,7 @@ import {NgIf, NgStyle} from "@angular/common";
   imports: [
     MatCard,
     NgStyle,
+    NgClass,
     NgIf,
   ],
   templateUrl: './hover.component.html',

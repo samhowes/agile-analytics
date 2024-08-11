@@ -5,6 +5,8 @@ import {BehaviorSubject} from "rxjs";
 
 export class HoverDisplay {
   styles: ObjMap<any> = {}
+  ngClass: ObjMap<any> = {}
+
   workItem: WorkItem|null = null
   active$ = new BehaviorSubject<boolean>(false)
 
@@ -19,12 +21,14 @@ export class HoverDisplay {
       "top": 6 + event.location.y + 'px',
       "left": 6 + event.location.x + 'px',
     }
+    this.ngClass = {
+      "popup-show": true
+    }
   }
 
   hide() {
-    this.workItem = null
-    this.styles = {
-      "display": "none"
+    this.ngClass = {
+      "popup-hide": true
     }
   }
 

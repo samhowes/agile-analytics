@@ -119,8 +119,6 @@ export class VelocityScatterChart {
         exit => exit.remove())
       .attr('transform',d => `translate(${this.xScale(d.time)}, ${this.yScale(d.points)})`)
       .attr("r", this.config.pointRadius)
-
-    this.onHover(workItems[workItems.length - 1])
   }
 
   private onHover(d: WorkItem) {
