@@ -5,7 +5,7 @@ $foreground: #fff;
 $background: #ddd;
 
 // Define the theme object.
-$agile-analytics-theme: mat.define-theme((
+$theme: mat.define-theme((
   color: (
     theme-type: light,
     primary: mat.$azure-palette,

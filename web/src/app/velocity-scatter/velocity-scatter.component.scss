@@ -1,5 +1,6 @@
 @use "theme" as *;
 @use "d3" as *;
+@use "@angular/material" as mat;
 
 :host {
   @extend .d3-svg-container;
@@ -17,8 +18,8 @@
 
 :host::ng-deep svg {
   .work-items {
-    fill: red;
-    stroke: blue;
+    fill: mat.get-theme-color($theme, primary, 80);
+    stroke: mat.get-theme-color($theme, primary, 60);
     stroke-width: 1px;
   }
   .cursor {

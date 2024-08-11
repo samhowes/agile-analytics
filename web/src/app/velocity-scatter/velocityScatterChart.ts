@@ -117,7 +117,7 @@ export class VelocityScatterChart {
       new Rect(rect.width, rect.height),
       this.margins
     )
-    this.pointRadius = Math.sqrt(.0006 * this.box.inner.width * this.box.inner.height / Math.PI)
+    this.pointRadius = 5
   }
 
   private initElements() {

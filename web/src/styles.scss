@@ -14,7 +14,7 @@
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 :root {
-  @include mat.all-component-themes($agile-analytics-theme);
+  @include mat.all-component-themes($theme);
 }
 
 // Comment out the line below if you want to use the pre-defined typography utility classes.
