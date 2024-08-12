@@ -1,4 +1,10 @@
 <spinner-overlay [spin]="isLoading()">
+  <div class="toolbar flex flex-row-reverse">
+    <button mat-icon-button (click)="showConfigure()"><mat-icon>tune</mat-icon></button>
+  </div>
   <svg class="d3-svg" #svg>
   </svg>
+  <div class="overlay" *ngIf="configureOpen()">
+    <configure-burndown [config]="menuConfig" (onClose)="closeConfigure($event)"></configure-burndown>
+  </div>
 </spinner-overlay>

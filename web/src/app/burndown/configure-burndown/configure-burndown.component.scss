@@ -1,0 +1,13 @@
+@use "theme" as *;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  background: $foreground;
+  border-radius: 4px;
+  padding: .5rem;
+}
+
+h3 {
+  font-size: 1.2rem;
+}

@@ -1,0 +1,17 @@
+<div class="flex flex-row gap-2 items-center">
+  <h3>Configure Burndown</h3>
+  <button mat-icon-button (click)="onClose.emit(false)">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="formGroup" class="flex flex-col gap-4">
+  <mat-checkbox [formControl]="showCompleted">Show Completed Points</mat-checkbox>
+
+  <div class="flex flex-row justify-between">
+    <button type="button" mat-raised-button (click)="onClose.emit(false)">Cancel</button>
+    <button type="submit" mat-raised-button color="primary"
+            [disabled]="!formGroup.valid || !formGroup.dirty"
+            (click)="save()">Save</button>
+  </div>
+</form>

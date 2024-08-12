@@ -7,11 +7,39 @@
 :host {
   @extend .d3-svg-container;
   @extend .chart-card;
+  position: relative;
+}
+
+.toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  & > * {
+    pointer-events: all;
+  }
+}
+
+.overlay {
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 :host::ng-deep {
   .bar.completed {
-    fill: map.get($blue, 30);
+    fill: map.get($green, 30);
   }
 
   .bar.active {
@@ -19,6 +47,6 @@
   }
 
   .bar.remaining {
-    fill: map.get($green, 30);
+    fill: map.get($blue, 30);
   }
 }

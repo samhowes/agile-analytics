@@ -2,12 +2,7 @@ import {D3Chart} from "@app/chart/d3Chart";
 import {WorkItem} from "@app/velocity-scatter/work-item.service";
 import * as d3 from "d3";
 import {ContainerSelection, DataSelection} from "@app/chart/d3";
-
-export class BurndownConfig {
-  pointsMax = 50
-  timeMax = 100
-  timeIncrement = 10
-}
+import {BurndownConfig} from "@app/burndown/burndownConfig";
 
 export class TimeBucket {
   label: string;
@@ -47,7 +42,14 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
   override init(config: BurndownConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement)
+    this.initElements();
 
+    this.reInit();
+
+    this.init$.next()
+  }
+
+  reInit() {
     this.timeBuckets = []
     for (let i = this.config.timeIncrement; i <= this.config.timeMax; i += this.config.timeIncrement) {
       this.timeBuckets.push(
@@ -55,17 +57,18 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
       )
     }
 
-
     this.xScale = d3.scaleBand<TimeBucket>().domain(this.timeBuckets)
       .padding(.1)
     this.yScale = d3.scaleLinear().domain([0, this.config.pointsMax])
     this.height = d3.scaleLinear().domain([0, this.config.pointsMax])
 
     this.setSizes()
-    this.initElements();
     this.setAxes()
+  }
 
-    this.init$.next()
+  override reDraw() {
+    this.bars.remove()
+    super.reDraw()
   }
 
   override setSizes() {
@@ -136,11 +139,13 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
             .attr('stroke-width', '1px')
 
           // draw the bars from the top down, completed -> active -> remaining
-          g.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('height', d => this.height(d.completedPoints))
-            .attr('class', 'bar completed')
+          if (this.config.showCompleted) {
+            g.append('rect')
+              .attr('x', 0)
+              .attr('y', 0)
+              .attr('height', d => this.height(d.completedPoints))
+              .attr('class', 'bar completed')
+          }
 
           g.append('rect')
             .attr('x', d => 0)

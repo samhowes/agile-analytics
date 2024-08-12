@@ -20,6 +20,7 @@ import {CommonModule} from "@angular/common";
       .spinner-wrapper {
         position: relative;
         display: flex;
+        flex-direction: column;
         flex: 1;
         .spinner-overlay {
           position: absolute;

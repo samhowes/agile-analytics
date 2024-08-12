@@ -38,4 +38,8 @@ export abstract class D3Chart<TConfig, TData> {
   setData(data: TData): void {
     this.data = data
   }
+
+  reDraw() {
+    this.setData(this.data)
+  }
 }
