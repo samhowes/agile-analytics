@@ -100,12 +100,31 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   override setData(workItems: WorkItem[]) {
     super.setData(workItems)
 
+    let completed = 5
+    let active = 3
+    let remaining = 20
+
     for (let i = 0; i < this.timeBuckets.length; i++) {
       const bucket = this.timeBuckets[i]
-      bucket.completedPoints = 20
-      bucket.activePoints = 10
-      bucket.remainingPoints = 10
-      bucket.totalPoints = bucket.completedPoints + bucket.remainingPoints
+      bucket.completedPoints = completed
+      bucket.activePoints = active
+      bucket.remainingPoints = remaining
+      bucket.totalPoints = bucket.completedPoints + bucket.activePoints + bucket.remainingPoints
+
+      if (remaining === 0 && active == 0)
+        continue
+
+      if (active > remaining) {
+        completed = completed + active
+        active = remaining
+        remaining = 0
+      } else if (remaining === 0) {
+        completed += active
+        active = 0
+      } else {
+        remaining -= active
+        completed += active
+      }
     }
 
     this.bars = this.barsGroup.selectAll('g')
@@ -116,25 +135,31 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
             .attr('stroke', 'white')
             .attr('stroke-width', '1px')
 
-          // draw the bars from the top down, active -> completed
+          // draw the bars from the top down, completed -> active -> remaining
           g.append('rect')
             .attr('x', 0)
             .attr('y', 0)
-            .attr('height', d => this.height(d.activePoints))
+            .attr('height', d => this.height(d.completedPoints))
+            .attr('class', 'bar completed')
+
+          g.append('rect')
+            .attr('x', d => 0)
+            .attr('y', d => this.height(d.completedPoints))
+            .attr('height', b => this.height(b.activePoints))
             .attr('class', 'bar active')
 
           g.append('rect')
             .attr('x', d => 0)
-            .attr('y', d => this.height(d.activePoints))
-            .attr('height', b => this.height(b.completedPoints))
-            .attr('class', 'bar completed')
+            .attr('y', d => this.height(d.completedPoints + d.activePoints))
+            .attr('height', d => this.height(d.remainingPoints))
+            .attr('class', 'bar remaining')
 
           return g
         },
         update => update,
         exit => exit.remove()
       ).attr('transform',
-        d => `translate(${this.xScale(d)}, ${this.yScale(d.completedPoints + d.activePoints)})`)
+        d => `translate(${this.xScale(d)}, ${this.yScale(d.totalPoints)})`)
 
     // make sure width gets set on update so it gets resized on screen resize
     this.bars

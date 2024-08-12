@@ -11,10 +11,14 @@
 
 :host::ng-deep {
   .bar.completed {
-    fill: map.get($blue, 20);
+    fill: map.get($blue, 30);
   }
 
   .bar.active {
-    fill: map.get($green, 20);
+    fill: map.get($azure, 30);
+  }
+
+  .bar.remaining {
+    fill: map.get($green, 30);
   }
 }
