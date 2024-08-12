@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import {Point, Rect} from "./rect";
-import {ContainerSelection, ElementSelection} from "./d3";
+import {Point, Rect} from "../chart/rect";
+import {ContainerSelection, ElementSelection} from "../chart/d3";
 
 export class Cursor {
   xLine: ElementSelection<SVGLineElement>;

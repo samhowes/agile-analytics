@@ -1,18 +1,11 @@
 @use "theme" as *;
+@use "utils" as *;
 @use "d3" as *;
 @use "@angular/material" as mat;
 
 :host {
   @extend .d3-svg-container;
-
-  box-sizing: border-box;
-  display: flex;
-  height: 100%;
-  width: 100%;
-  background: $foreground;
-  border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.2);
-  padding: 1rem;
+  @extend .chart-card;
 }
 
 

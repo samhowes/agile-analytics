@@ -1,11 +1,10 @@
 import * as d3 from 'd3';
 import {WorkItem} from "./work-item.service";
 import {Subject} from "rxjs";
-import {Point, Rect} from "./rect";
+import {Point, Rect} from "../chart/rect";
 import {Cursor} from "./cursor";
-import {ChartBox, Margins} from "./chartBox";
-import {ContainerSelection, DataSelection} from "./d3";
-import {EnterElement} from "d3";
+import {ContainerSelection, DataSelection} from "../chart/d3";
+import {D3Chart} from "@app/chart/d3Chart";
 
 export class VelocityScatterConfig {
   pointRadius = 8;
@@ -22,12 +21,7 @@ export class HoverEvent {
   }
 }
 
-export class VelocityScatterChart {
-  private svgElement!: SVGSVGElement;
-  private svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
-  private svgRect!: Rect
-  private box!: ChartBox
-  private margins = new Margins(20, 20, 20, 20)
+export class VelocityScatterChart extends D3Chart<VelocityScatterConfig, WorkItem[]>{
   private xScale!: d3.ScaleLinear<number, number, never>;
   private yScale!: d3.ScaleLinear<number, number, never>;
 
@@ -40,16 +34,10 @@ export class VelocityScatterChart {
   private cursor!: Cursor;
   private cursorGroup!: ContainerSelection
 
-  config!: VelocityScatterConfig
-  private data: WorkItem[] = [];
-
-  init$ = new Subject<void>();
   hover$ = new Subject<HoverEvent|null>();
 
-  init(config: VelocityScatterConfig, svgElement: SVGSVGElement) {
-    this.config = config
-    this.svgElement = svgElement
-    this.svg = d3.select(this.svgElement)
+  override init(config: VelocityScatterConfig, svgElement: SVGSVGElement) {
+    super.init(config, svgElement)
 
     this.xScale = d3.scaleLinear().domain([0, this.config.timeMax])
     this.yScale = d3.scaleLinear().domain([0, this.config.pointsMax])
@@ -59,9 +47,13 @@ export class VelocityScatterChart {
     this.setAxes()
     this.initCursor()
 
-    new ResizeObserver(() => this.onResize())
-      .observe(this.svgElement)
     this.init$.next()
+  }
+
+  override setSizes() {
+    super.setSizes()
+    this.xScale.range([this.box.inner.left, this.box.inner.right])
+    this.yScale.range([this.box.inner.bottom, this.box.inner.top])
   }
 
   private initElements() {
@@ -74,24 +66,6 @@ export class VelocityScatterChart {
     this.yAxis = this.svg.append('g')
   }
 
-  onResize() {
-    this.setSizes();
-    this.setAxes()
-    this.setData(this.data)
-    this.cursor.redraw()
-  }
-
-  private setSizes() {
-    const rect = this.svgElement.getBoundingClientRect();
-    this.svgRect = new Rect(rect.width, rect.height, rect.x, rect.y);
-    this.box = new ChartBox(
-      new Rect(rect.width, rect.height),
-      this.margins
-    )
-    this.xScale.range([this.box.inner.left, this.box.inner.right])
-    this.yScale.range([this.box.inner.bottom, this.box.inner.top])
-  }
-
   private setAxes() {
     this.xAxis
       .attr('transform', `translate(0, ${this.box.inner.bottom})`)
@@ -102,8 +76,38 @@ export class VelocityScatterChart {
       .call(d3.axisLeft(this.yScale))
   }
 
-  setData(workItems: WorkItem[]) {
-    this.data = workItems
+  private initCursor() {
+    this.cursor = new Cursor(this.cursorGroup, this.box.inner)
+    this.svg.on('mousemove mouseenter', e => {
+      const location = this.svgRect.mapPoint(e)
+      if (!this.box.inner.contains(location)) {
+        if (this.cursor.visible) {
+          this.cursor.hide()
+        }
+        return
+      }
+      if (!this.cursor.visible) {
+        this.cursor.show()
+      }
+
+      this.cursor.moveTo(location)
+    })
+
+    this.svg.on('mouseleave', () => {
+      this.cursor.hide()
+    })
+  }
+
+  onResize() {
+    this.setSizes();
+    this.setAxes()
+    this.setData(this.data)
+    this.cursor.redraw()
+  }
+
+  override setData(workItems: WorkItem[]) {
+    super.setData(workItems)
+
     this.points = this.pointsGroup.selectAll('circle')
     this.points = this.points.data<WorkItem>(workItems, d => d.id)
       .join<SVGCircleElement, WorkItem>(enter => {
@@ -128,27 +132,5 @@ export class VelocityScatterChart {
     }
     location = this.svgRect.unmap(location)
     this.hover$.next(new HoverEvent(d, location))
-  }
-
-  private initCursor() {
-    this.cursor = new Cursor(this.cursorGroup, this.box.inner)
-    this.svg.on('mousemove mouseenter', e => {
-      const location = this.svgRect.mapPoint(e)
-      if (!this.box.inner.contains(location)) {
-        if (this.cursor.visible) {
-          this.cursor.hide()
-        }
-        return
-      }
-      if (!this.cursor.visible) {
-        this.cursor.show()
-      }
-
-      this.cursor.moveTo(location)
-    })
-
-    this.svg.on('mouseleave', () => {
-      this.cursor.hide()
-    })
   }
 }
