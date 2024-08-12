@@ -1,0 +1,9 @@
+@use "theme" as *;
+@use "utils" as *;
+@use "d3" as *;
+@use "@angular/material" as mat;
+
+:host {
+  @extend .d3-svg-container;
+  @extend .chart-card;
+}
