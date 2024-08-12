@@ -1,3 +1,4 @@
+@use "sass:map";
 @use "theme" as *;
 @use "utils" as *;
 @use "d3" as *;
@@ -6,4 +7,14 @@
 :host {
   @extend .d3-svg-container;
   @extend .chart-card;
+}
+
+:host::ng-deep {
+  .bar.completed {
+    fill: map.get($blue, 20);
+  }
+
+  .bar.active {
+    fill: map.get($green, 20);
+  }
 }
