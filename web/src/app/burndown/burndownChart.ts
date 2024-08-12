@@ -143,20 +143,20 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
             g.append('rect')
               .attr('x', 0)
               .attr('y', 0)
-              .attr('height', d => this.height(d.completedPoints))
+              .attr('height', 0)
               .attr('class', 'bar completed')
           }
 
           g.append('rect')
-            .attr('x', d => 0)
-            .attr('y', d => this.height(d.completedPoints))
-            .attr('height', b => this.height(b.activePoints))
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('height', 0)
             .attr('class', 'bar active')
 
           g.append('rect')
-            .attr('x', d => 0)
-            .attr('y', d => this.height(d.completedPoints + d.activePoints))
-            .attr('height', d => this.height(d.remainingPoints))
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('height', 0)
             .attr('class', 'bar remaining')
 
           return g
@@ -164,11 +164,31 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
         update => update,
         exit => exit.remove()
       ).attr('transform',
-        d => `translate(${this.xScale(d)}, ${this.yScale(d.totalPoints)})`)
+        d => `translate(${this.xScale(d)}, ${this.yScale(0)})`)
 
     // make sure width gets set on update so it gets resized on screen resize
     this.bars
       .selectAll('rect')
       .attr('width', this.xScale.bandwidth())
+
+
+    const transition = this.bars.transition().duration(1000)
+    transition
+      .attr('transform',
+        d => `translate(${this.xScale(d)}, ${this.yScale(d.totalPoints)})`)
+
+    transition
+      .selectAll<SVGRectElement, TimeBucket>('rect.completed')
+      .attr('height', d => this.height(d.completedPoints))
+
+    transition
+      .selectAll<SVGRectElement, TimeBucket>('rect.active')
+      .attr('y', d => this.height(d.completedPoints))
+      .attr('height', b => this.height(b.activePoints))
+
+    transition
+      .selectAll<SVGRectElement, TimeBucket>('rect.remaining')
+      .attr('y', d => this.height(d.completedPoints + d.activePoints))
+      .attr('height', d => this.height(d.remainingPoints))
   }
 }
