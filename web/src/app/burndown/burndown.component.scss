@@ -49,4 +49,22 @@
   .bar.remaining {
     fill: map.get($blue, 30);
   }
+
+  .lines {
+    path {
+      fill: none;
+      //stroke: map.get(map.get($blue, "neutral"), 80);
+      stroke-width: 4px;
+      stroke-miterlimit: 1;
+      &.burndown {
+        stroke: rgb(157, 157, 157);
+      }
+      &.total-scope {
+        stroke: rgb(255, 164, 56);
+      }
+    }
+  }
+  path.burndown {
+
+  }
 }

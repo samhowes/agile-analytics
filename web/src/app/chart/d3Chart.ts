@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import {Rect} from "@app/chart/rect";
 import {ChartBox, Margins} from "@app/chart/chartBox";
 import {WorkItem} from "@app/velocity-scatter/work-item.service";
+import {BaseType} from "d3";
 
 export abstract class D3Chart<TConfig, TData> {
   init$ = new Subject<void>();
@@ -10,7 +11,7 @@ export abstract class D3Chart<TConfig, TData> {
   protected data!: TData;
 
   protected svgElement!: SVGSVGElement;
-  protected svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
+  protected svg!: d3.Selection<SVGSVGElement, any, any, any>;
   protected svgRect!: Rect
   protected box!: ChartBox
   protected margins = new Margins(20, 20, 20, 20)
@@ -41,5 +42,9 @@ export abstract class D3Chart<TConfig, TData> {
 
   reDraw() {
     this.setData(this.data)
+  }
+
+  protected transition() {
+    return this.svg.transition() as unknown as d3.Transition<BaseType, any, any, any>
   }
 }
