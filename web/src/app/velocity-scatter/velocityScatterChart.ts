@@ -105,11 +105,9 @@ export class VelocityScatterChart extends D3Chart<VelocityScatterConfig, WorkIte
     this.cursor.redraw()
   }
 
-  override setData(workItems: WorkItem[]) {
-    super.setData(workItems)
-
+  override draw(shouldAnimate = true) {
     this.points = this.pointsGroup.selectAll('circle')
-    this.points = this.points.data<WorkItem>(workItems, d => d.id)
+    this.points = this.points.data<WorkItem>(this.data, d => d.id)
       .join<SVGCircleElement, WorkItem>(enter => {
         const circle = enter.append("circle")
           circle.on("mouseenter", (_, d) => {

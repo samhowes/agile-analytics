@@ -1,9 +1,9 @@
-import {Observable, Subject} from "rxjs";
+import {Subject} from "rxjs";
 import * as d3 from "d3";
+import {BaseType} from "d3";
 import {Rect} from "@app/chart/rect";
 import {ChartBox, Margins} from "@app/chart/chartBox";
-import {WorkItem} from "@app/velocity-scatter/work-item.service";
-import {BaseType} from "d3";
+import {DataSelection, Transition} from "@app/chart/d3";
 
 export abstract class D3Chart<TConfig, TData> {
   init$ = new Subject<void>();
@@ -21,15 +21,24 @@ export abstract class D3Chart<TConfig, TData> {
     this.svgElement = svgElement
     this.svg = d3.select(this.svgElement)
 
-    new ResizeObserver(() => this.onResize())
+    new ResizeObserver(() => {
+      const newRect = this.getSvgRect()
+      if (newRect.equals(this.svgRect))
+        return
+      this.onResize();
+    })
       .observe(this.svgElement)
   }
 
-  protected setSizes() {
+  private getSvgRect() {
     const rect = this.svgElement.getBoundingClientRect();
-    this.svgRect = new Rect(rect.width, rect.height, rect.x, rect.y);
+    return new Rect(rect.width, rect.height, rect.x, rect.y)
+  }
+
+  protected setSizes() {
+    this.svgRect = this.getSvgRect()
     this.box = new ChartBox(
-      new Rect(rect.width, rect.height),
+      new Rect(this.svgRect.width, this.svgRect.height),
       this.margins
     )
   }
@@ -38,13 +47,24 @@ export abstract class D3Chart<TConfig, TData> {
 
   setData(data: TData): void {
     this.data = data
+    this.draw(true)
   }
 
+  abstract draw(shouldAnimate: boolean): void;
+
   reDraw() {
-    this.setData(this.data)
+    this.draw(false)
   }
 
   protected transition() {
     return this.svg.transition() as unknown as d3.Transition<BaseType, any, any, any>
+  }
+
+
+  protected applyTransition<TOut>(selection: TOut, transition: Transition | null): TOut {
+    if (transition === null)
+      return selection as unknown as TOut
+    return (selection as unknown as d3.Selection<BaseType, any, any, any>)
+      .transition(transition) as unknown as TOut
   }
 }

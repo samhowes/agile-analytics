@@ -33,4 +33,11 @@ export class Rect {
       y: p.y + this.y
     };
   }
+
+  equals(other: Rect) {
+    return this.x === other.x
+      && this.y === other.y
+      && this.width === other.width
+      && this.height === other.height
+  }
 }
