@@ -4,6 +4,8 @@ import * as d3 from "d3";
 import {ContainerSelection, DataSelection, Transition} from "@app/chart/d3";
 import {BurndownConfig} from "@app/burndown/burndownConfig";
 import {Action} from "@lib/reflection";
+import {Point} from "@app/chart/rect";
+import {distinct, distinctUntilChanged, Subject} from "rxjs";
 
 export class TimeBucket {
   label: string;
@@ -34,6 +36,8 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private yScale!: d3.ScaleLinear<number, number>;
   private height!: d3.ScaleLinear<number, number>;
 
+  private plotBackground!: d3.Selection<SVGRectElement, any, any, any>;
+
   private xAxis!: ContainerSelection
   private yAxis!: ContainerSelection
 
@@ -43,11 +47,20 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
   private burndownPath!: d3.Selection<SVGPathElement, unknown, null, undefined>;
   private totalPath!: d3.Selection<SVGPathElement, unknown, null, undefined>;
+  private hover$ = new Subject<TimeBucket|null>();
 
 
   override init(config: BurndownConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement)
     this.initElements();
+
+    this.hover$.pipe(distinctUntilChanged()).subscribe((bucket) => {
+      if (!bucket) {
+        console.log('mouseleave')
+      } else {
+        console.log(bucket.max)
+      }
+    })
 
     this.reInit();
 
@@ -55,20 +68,28 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   }
 
   reInit() {
+    this.makeBuckets();
+
+    this.xScale = d3.scaleBand<TimeBucket>().domain(this.timeBuckets).padding(.1)
+    this.yScale = d3.scaleLinear().domain([0, this.config.pointsMax])
+    this.height = d3.scaleLinear().domain([0, this.config.pointsMax])
+
+    this.setSizes()
+    this.plotBackground
+      .attr('x', this.box.inner.left)
+      .attr('y', this.box.inner.top)
+      .attr('width', this.box.inner.width)
+      .attr('height', this.box.inner.height)
+    this.setAxes()
+  }
+
+  private makeBuckets() {
     this.timeBuckets = []
     for (let i = this.config.timeIncrement; i <= this.config.timeMax; i += this.config.timeIncrement) {
       this.timeBuckets.push(
         new TimeBucket(i - this.config.timeIncrement, i)
       )
     }
-
-    this.xScale = d3.scaleBand<TimeBucket>().domain(this.timeBuckets)
-      .padding(.1)
-    this.yScale = d3.scaleLinear().domain([0, this.config.pointsMax])
-    this.height = d3.scaleLinear().domain([0, this.config.pointsMax])
-
-    this.setSizes()
-    this.setAxes()
   }
 
   override reDraw() {
@@ -90,10 +111,21 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   }
 
   private initElements() {
-    this.barsGroup = this.svg.append('g').classed('bars', true)
-    this.linesGroup = this.svg.append('g').classed('lines', true)
+    this.plotBackground = this.svg.append('rect').classed('plot-background', true)
+      .on('mousemove', (event) => {
+        event.preventDefault()
+        this.onHover(event)
+      })
+    this.svg.on('mousemove', (event) => {
+      const svgPoint = this.svgRect.mapPoint(event)
+      if (!this.box.inner.contains(svgPoint)) {
+        this.hover$.next(null)
+      }
+    })
     this.xAxis = this.svg.append('g')
     this.yAxis = this.svg.append('g')
+    this.barsGroup = this.svg.append('g').classed('bars', true)
+    this.linesGroup = this.svg.append('g').classed('lines', true)
   }
 
   private setAxes() {
@@ -173,12 +205,17 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
   private drawBars(): Action<Transition> {
     this.bars = this.barsGroup.selectAll('g')
+
+    const onHover = (event: any, bucket: TimeBucket) => this.hover$.next(bucket)
+
     this.bars = this.bars.data<TimeBucket>(this.timeBuckets, d => d.max)
       .join<SVGGElement, TimeBucket>(
         enter => {
           const g = enter.append('g')
+            .attr('class', 'time-slice')
             .attr('stroke', 'white')
             .attr('stroke-width', '1px')
+            .on('mouseover', onHover)
 
           // draw the bars from the top down, completed -> active -> remaining
           if (this.config.showCompleted) {
@@ -240,5 +277,26 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
         const length = this.getTotalLength();
         return d3.interpolate(`0,${length}`, `${length},${length}`);
       })
+  }
+
+  private onHover(event: Point) {
+    const svgPoint = this.svgRect.mapPoint(event)
+    const plotPoint = this.box.inner.mapPoint(svgPoint)
+
+    const bandWidth = this.box.inner.width / this.timeBuckets.length
+    const outerPadding = this.xScale.paddingOuter() * bandWidth
+
+    let index = 0;
+    if (plotPoint.x <= outerPadding)
+      index = 0
+    else if (this.box.inner.width - outerPadding <= plotPoint.x)
+      index = this.timeBuckets.length - 1
+    else {
+      const innerX = plotPoint.x - outerPadding
+      index = Math.floor(innerX / this.xScale.step())
+    }
+    const bucket = this.timeBuckets[index]
+
+    this.hover$.next(bucket)
   }
 }
