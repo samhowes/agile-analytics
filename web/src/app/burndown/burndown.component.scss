@@ -47,7 +47,8 @@
   }
 
   .bar.remaining {
-    fill: map.get($blue, 30);
+    //fill: map.get($blue, 30);
+    fill: rgb(0,120,212);
   }
 
   .lines {
