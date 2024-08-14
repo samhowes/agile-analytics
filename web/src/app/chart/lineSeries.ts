@@ -24,6 +24,8 @@ export class LineSeries<TDatum> implements Series<TDatum> {
   draw(transition: Transition | null, data: TDatum[]) {
     if (!this.path) {
       this.path = this.container.append('path').classed('series-line', true)
+    } else if (!transition) {
+      this.path.attr('stroke-dasharray', null)
     }
     this.path.attr('d', this.line(data))
 

@@ -24,6 +24,7 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private hover$ = new Subject<TimeBucket | null>();
 
   private series: Series<TimeBucket>[] = []
+  private seriesGroup!: ContainerSelection
 
   override init(config: BurndownConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement)
@@ -51,6 +52,50 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
     this.setSizes()
     this.setAxes()
+
+    this.seriesGroup.selectAll("g").remove()
+
+    this.series = [
+      new BarSeries<TimeBucket>(
+        "remaining",
+        this.seriesGroup.append('g'),
+        d => this.xScale(d)!,
+        d => this.yScale(d.remainingPoints),
+        () => this.yScale(0),
+        d => this.xScale.bandwidth(),
+        d => this.height(d.remainingPoints)
+      ),
+      new BarSeries<TimeBucket>(
+        "active",
+        this.seriesGroup.append('g'),
+        d => this.xScale(d)!,
+        d => this.yScale(d.activePoints) - this.height(d.remainingPoints),
+        () => this.yScale(0),
+        d => this.xScale.bandwidth(),
+        d => this.height(d.activePoints)
+      ),
+      new BarSeries<TimeBucket>(
+        "completed",
+        this.seriesGroup.append('g'),
+        d => this.xScale(d)!,
+        d => this.yScale(d.completedPoints) - this.height(d.remainingPoints) - this.height(d.activePoints),
+        () => this.yScale(0),
+        d => this.xScale.bandwidth(),
+        d => this.height(d.completedPoints)
+      ).setEnabled(() => this.config.showCompleted),
+      new LineSeries<TimeBucket>(
+        "burndown",
+        this.seriesGroup.append('g'),
+        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+        d => this.yScale(d.remainingPoints)
+      ),
+      new LineSeries<TimeBucket>(
+        "total-scope",
+        this.seriesGroup.append('g'),
+        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+        d => this.yScale(d.totalPoints)
+      )
+    ]
   }
 
   private makeBuckets() {
@@ -90,47 +135,7 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     this.xAxis = this.svg.append('g')
     this.yAxis = this.svg.append('g')
 
-    this.series = [
-      new BarSeries<TimeBucket>(
-        "remaining",
-        this.svg.append('g'),
-        d => this.xScale(d)!,
-        d => this.yScale(d.remainingPoints),
-        () => this.yScale(0),
-        d => this.xScale.bandwidth(),
-        d => this.height(d.remainingPoints)
-      ),
-      new BarSeries<TimeBucket>(
-        "active",
-        this.svg.append('g'),
-        d => this.xScale(d)!,
-        d => this.yScale(d.activePoints) - this.height(d.remainingPoints),
-        () => this.yScale(0),
-        d => this.xScale.bandwidth(),
-        d => this.height(d.activePoints)
-      ),
-      new BarSeries<TimeBucket>(
-        "completed",
-        this.svg.append('g'),
-        d => this.xScale(d)!,
-        d => this.yScale(d.completedPoints) - this.height(d.remainingPoints) - this.height(d.activePoints),
-        () => this.yScale(0),
-        d => this.xScale.bandwidth(),
-        d => this.height(d.completedPoints)
-      ),
-      new LineSeries<TimeBucket>(
-        "burndown",
-        this.svg.append('g'),
-        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
-        d => this.yScale(d.remainingPoints)
-      ),
-      new LineSeries<TimeBucket>(
-        "total-scope",
-        this.svg.append('g'),
-        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
-        d => this.yScale(d.totalPoints)
-      )
-    ]
+    this.seriesGroup = this.svg.append("g").attr('class', 'series-group')
   }
 
   private setAxes() {
