@@ -51,21 +51,26 @@
     fill: rgb(0,120,212);
   }
 
-  .lines {
+  path.series-line {
+    fill: none;
+    stroke-width: 4px;
+    stroke-miterlimit: 1;
+  }
+
+  @mixin series($color) {
     path {
-      fill: none;
-      //stroke: map.get(map.get($blue, "neutral"), 80);
-      stroke-width: 4px;
-      stroke-miterlimit: 1;
-      &.burndown {
-        stroke: rgb(157, 157, 157);
-      }
-      &.total-scope {
-        stroke: rgb(255, 164, 56);
-      }
+      stroke: $color;
+    }
+    circle {
+      fill: $color;
     }
   }
-  path.burndown {
 
+  .series-burndown {
+    @include series(rgb(157, 157, 157));
+  }
+
+  .series-total-scope {
+    @include series(rgb(255, 164, 56));
   }
 }

@@ -6,6 +6,7 @@ import {BurndownConfig} from "@app/burndown/burndownConfig";
 import {Point} from "@app/chart/rect";
 import {distinctUntilChanged, Subject} from "rxjs";
 import {TimeBucket} from "@app/burndown/timeBucket";
+import {LineSeries} from "@app/chart/lineSeries";
 
 export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private timeBuckets: TimeBucket[] = []
@@ -21,11 +22,11 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
   private barsGroup!: ContainerSelection
   private bars!: DataSelection<SVGGElement, TimeBucket>
-  private linesGroup!: ContainerSelection
 
-  private burndownPath!: d3.Selection<SVGPathElement, unknown, null, undefined>;
-  private totalPath!: d3.Selection<SVGPathElement, unknown, null, undefined>;
   private hover$ = new Subject<TimeBucket | null>();
+
+  private burndownSeries!: LineSeries<TimeBucket>;
+  private totalSeries!: LineSeries<TimeBucket>;
 
 
   override init(config: BurndownConfig, svgElement: SVGSVGElement) {
@@ -98,7 +99,20 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     this.xAxis = this.svg.append('g')
     this.yAxis = this.svg.append('g')
     this.barsGroup = this.svg.append('g').classed('bars', true)
-    this.linesGroup = this.svg.append('g').classed('lines', true)
+
+    this.burndownSeries = new LineSeries<TimeBucket>(
+      "burndown",
+      this.svg.append('g'),
+      d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+      d => this.yScale(d.remainingPoints)
+    )
+
+    this.totalSeries = new LineSeries<TimeBucket>(
+      "total-scope",
+      this.svg.append('g'),
+      d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+      d => this.yScale(d.totalPoints)
+    )
   }
 
   private setAxes() {
@@ -151,33 +165,8 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     const transition: Transition | null = shouldAnimate ? this.transition().duration(1000) : null
 
     this.drawBars(transition);
-    this.drawLines(transition);
-  }
-
-  private drawLines(transition: Transition | null) {
-    const burndownLine = d3.line<TimeBucket>()
-      .x(d => this.xScale(d)! + this.xScale.bandwidth() / 2)
-      .y(d => this.yScale(d.remainingPoints))
-
-    const totalLine = d3.line<TimeBucket>()
-      .x(d => this.xScale(d)! + this.xScale.bandwidth() / 2)
-      .y(d => this.yScale(d.totalPoints))
-
-    if (!this.burndownPath) {
-      this.burndownPath = this.linesGroup.append('path')
-        .attr('class', 'burndown')
-    }
-    this.burndownPath.attr('d', burndownLine(this.timeBuckets))
-
-    if (!this.totalPath) {
-      this.totalPath = this.linesGroup.append('path')
-        .attr('class', 'total-scope')
-    }
-    this.totalPath.attr('d', totalLine(this.timeBuckets))
-
-
-    this.growPath(this.burndownPath, transition)
-    this.growPath(this.totalPath, transition)
+    this.burndownSeries.draw(transition, this.timeBuckets)
+    this.totalSeries.draw(transition, this.timeBuckets)
   }
 
   private drawBars(transition: Transition | null) {
@@ -243,17 +232,6 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
       .attr('y', d => this.height(d.completedPoints + d.activePoints))
       .attr('height', d => this.height(d.remainingPoints))
 
-  }
-
-  private growPath(path: ElementSelection<SVGPathElement>, transition: Transition | null) {
-    if (!transition)
-      return;
-    path.attr('stroke-dasharray', '0,1')
-    path.transition(transition)
-      .attrTween("stroke-dasharray", function () {
-        const length = this.getTotalLength();
-        return d3.interpolate(`0,${length}`, `${length},${length}`);
-      })
   }
 
   private onHover(event: Point) {
