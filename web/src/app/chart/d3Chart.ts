@@ -3,7 +3,6 @@ import * as d3 from "d3";
 import {BaseType} from "d3";
 import {Rect} from "@app/chart/rect";
 import {ChartBox, Margins} from "@app/chart/chartBox";
-import {DataSelection, Transition} from "@app/chart/d3";
 
 export abstract class D3Chart<TConfig, TData> {
   init$ = new Subject<void>();
@@ -58,13 +57,5 @@ export abstract class D3Chart<TConfig, TData> {
 
   protected transition() {
     return this.svg.transition() as unknown as d3.Transition<BaseType, any, any, any>
-  }
-
-
-  protected applyTransition<TOut>(selection: TOut, transition: Transition | null): TOut {
-    if (transition === null)
-      return selection as unknown as TOut
-    return (selection as unknown as d3.Selection<BaseType, any, any, any>)
-      .transition(transition) as unknown as TOut
   }
 }

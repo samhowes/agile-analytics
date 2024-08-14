@@ -8,3 +8,12 @@ export declare type DataSelection<TElement extends d3.BaseType, TData> = d3.Sele
 
 export declare type Transition = d3.Transition<BaseType, any, any, any>
 export declare type SelectionLike<TData> = Transition | d3.Transition<SVGGElement, TData, any, any>
+
+export class D3 {
+  static applyTransition<TOut>(selection: TOut, transition: Transition | null): TOut {
+    if (transition === null)
+      return selection as unknown as TOut
+    return (selection as unknown as d3.Selection<BaseType, any, any, any>)
+      .transition(transition) as unknown as TOut
+  }
+}

@@ -1,9 +1,14 @@
 import {ContainerSelection, ElementSelection, Transition} from "@app/chart/d3";
 import * as d3 from "d3";
 
-export class LineSeries<TDatum> {
+export interface Series<TDatum> {
+  draw(transition: Transition | null, data: TDatum[]): void;
+}
+
+export class LineSeries<TDatum> implements Series<TDatum> {
   private readonly line: d3.Line<TDatum>;
   private path!: ElementSelection<SVGPathElement>;
+
   constructor(
     public name: string,
     private container: ContainerSelection,
@@ -33,3 +38,4 @@ export class LineSeries<TDatum> {
       })
   }
 }
+

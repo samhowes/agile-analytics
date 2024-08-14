@@ -38,16 +38,20 @@
 }
 
 :host::ng-deep {
-  .bar.completed {
+  .bar {
+    stroke: #fff;
+    stroke-width: .5px;
+  }
+
+  .series-completed .bar {
     fill: map.get($green, 30);
   }
 
-  .bar.active {
+  .series-active .bar {
     fill: map.get($azure, 30);
   }
 
-  .bar.remaining {
-    //fill: map.get($blue, 30);
+  .series-remaining .bar {
     fill: rgb(0,120,212);
   }
 

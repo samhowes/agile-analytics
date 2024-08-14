@@ -1,12 +1,13 @@
 import {D3Chart} from "@app/chart/d3Chart";
 import {WorkItem} from "@app/velocity-scatter/work-item.service";
 import * as d3 from "d3";
-import {ContainerSelection, DataSelection, ElementSelection, Transition} from "@app/chart/d3";
+import {ContainerSelection, D3, DataSelection, ElementSelection, Transition} from "@app/chart/d3";
 import {BurndownConfig} from "@app/burndown/burndownConfig";
 import {Point} from "@app/chart/rect";
 import {distinctUntilChanged, Subject} from "rxjs";
 import {TimeBucket} from "@app/burndown/timeBucket";
-import {LineSeries} from "@app/chart/lineSeries";
+import {LineSeries, Series} from "@app/chart/lineSeries";
+import {BarSeries} from "@app/chart/barSeries";
 
 export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private timeBuckets: TimeBucket[] = []
@@ -20,14 +21,9 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private xAxis!: ContainerSelection
   private yAxis!: ContainerSelection
 
-  private barsGroup!: ContainerSelection
-  private bars!: DataSelection<SVGGElement, TimeBucket>
-
   private hover$ = new Subject<TimeBucket | null>();
 
-  private burndownSeries!: LineSeries<TimeBucket>;
-  private totalSeries!: LineSeries<TimeBucket>;
-
+  private series: Series<TimeBucket>[] = []
 
   override init(config: BurndownConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement)
@@ -66,11 +62,6 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     }
   }
 
-  override reDraw() {
-    this.bars.remove()
-    super.reDraw()
-  }
-
   override setSizes() {
     super.setSizes()
     this.xScale.range([this.box.inner.left, this.box.inner.right])
@@ -98,21 +89,48 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     })
     this.xAxis = this.svg.append('g')
     this.yAxis = this.svg.append('g')
-    this.barsGroup = this.svg.append('g').classed('bars', true)
 
-    this.burndownSeries = new LineSeries<TimeBucket>(
-      "burndown",
-      this.svg.append('g'),
-      d => this.xScale(d)! + this.xScale.bandwidth() / 2,
-      d => this.yScale(d.remainingPoints)
-    )
-
-    this.totalSeries = new LineSeries<TimeBucket>(
-      "total-scope",
-      this.svg.append('g'),
-      d => this.xScale(d)! + this.xScale.bandwidth() / 2,
-      d => this.yScale(d.totalPoints)
-    )
+    this.series = [
+      new BarSeries<TimeBucket>(
+        "remaining",
+        this.svg.append('g'),
+        d => this.xScale(d)!,
+        d => this.yScale(d.remainingPoints),
+        () => this.yScale(0),
+        d => this.xScale.bandwidth(),
+        d => this.height(d.remainingPoints)
+      ),
+      new BarSeries<TimeBucket>(
+        "active",
+        this.svg.append('g'),
+        d => this.xScale(d)!,
+        d => this.yScale(d.activePoints) - this.height(d.remainingPoints),
+        () => this.yScale(0),
+        d => this.xScale.bandwidth(),
+        d => this.height(d.activePoints)
+      ),
+      new BarSeries<TimeBucket>(
+        "completed",
+        this.svg.append('g'),
+        d => this.xScale(d)!,
+        d => this.yScale(d.completedPoints) - this.height(d.remainingPoints) - this.height(d.activePoints),
+        () => this.yScale(0),
+        d => this.xScale.bandwidth(),
+        d => this.height(d.completedPoints)
+      ),
+      new LineSeries<TimeBucket>(
+        "burndown",
+        this.svg.append('g'),
+        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+        d => this.yScale(d.remainingPoints)
+      ),
+      new LineSeries<TimeBucket>(
+        "total-scope",
+        this.svg.append('g'),
+        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+        d => this.yScale(d.totalPoints)
+      )
+    ]
   }
 
   private setAxes() {
@@ -164,74 +182,9 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
     const transition: Transition | null = shouldAnimate ? this.transition().duration(1000) : null
 
-    this.drawBars(transition);
-    this.burndownSeries.draw(transition, this.timeBuckets)
-    this.totalSeries.draw(transition, this.timeBuckets)
-  }
-
-  private drawBars(transition: Transition | null) {
-    this.bars = this.barsGroup.selectAll('g')
-
-    const onHover = (event: any, bucket: TimeBucket) => this.hover$.next(bucket)
-
-    this.bars = this.bars.data<TimeBucket>(this.timeBuckets, d => d.max)
-      .join<SVGGElement, TimeBucket>(
-        enter => {
-          const g = enter.append('g')
-            .attr('class', 'time-slice')
-            .attr('stroke', 'white')
-            .attr('stroke-width', '1px')
-            .on('mouseover', onHover)
-
-          // draw the bars from the top down, completed -> active -> remaining
-          if (this.config.showCompleted) {
-            g.append('rect')
-              .attr('x', 0)
-              .attr('y', 0)
-              .attr('height', 0)
-              .attr('class', 'bar completed')
-          }
-
-          g.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('height', 0)
-            .attr('class', 'bar active')
-
-          g.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('height', 0)
-            .attr('class', 'bar remaining')
-
-          return g
-        },
-        update => update,
-        exit => exit.remove()
-      ).attr('transform',
-        d => `translate(${this.xScale(d)}, ${this.yScale(0)})`)
-
-    // make sure width gets set on update so it gets resized on screen resize
-    this.bars
-      .selectAll('rect')
-      .attr('width', this.xScale.bandwidth())
-
-    const bars = this.applyTransition(this.bars, transition)
-
-    bars.attr('transform',
-      d => `translate(${this.xScale(d)}, ${this.yScale(d.totalPoints)})`)
-
-    bars.selectAll<SVGRectElement, TimeBucket>('rect.completed')
-      .attr('height', d => this.height(d.completedPoints))
-
-    bars.selectAll<SVGRectElement, TimeBucket>('rect.active')
-      .attr('y', d => this.height(d.completedPoints))
-      .attr('height', b => this.height(b.activePoints))
-    //
-    bars.selectAll<SVGRectElement, TimeBucket>('rect.remaining')
-      .attr('y', d => this.height(d.completedPoints + d.activePoints))
-      .attr('height', d => this.height(d.remainingPoints))
-
+    for (const series of this.series) {
+      series.draw(transition, this.timeBuckets)
+    }
   }
 
   private onHover(event: Point) {
