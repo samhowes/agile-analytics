@@ -56,7 +56,9 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   reInit() {
     this.makeBuckets();
 
-    this.xScale = d3.scaleBand<TimeBucket>().domain(this.timeBuckets).padding(.1)
+    this.xScale = d3.scaleBand<TimeBucket>().domain(this.timeBuckets)
+      .paddingOuter(.1)
+      .paddingInner(.4)
     this.yScale = d3.scaleLinear().domain([0, this.config.pointsMax])
     this.height = d3.scaleLinear().domain([0, this.config.pointsMax])
 

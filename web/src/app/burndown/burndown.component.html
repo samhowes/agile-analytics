@@ -7,21 +7,5 @@
   <div class="overlay" *ngIf="configureOpen()">
     <configure-burndown [config]="menuConfig" (onClose)="closeConfigure($event)"></configure-burndown>
   </div>
-  <div class="hover" #hoverElement>
-<!--    @if (hover()) {-->
-<!--      <span>{{hover()!.max}} hrs</span>-->
-<!--      @if (hover()!.remainingPoints) {-->
-<!--        <div class="data-point">-->
-<!--          <svg><rect width="10" height="10" fill="red"></rect></svg>-->
-<!--          <span>Remaining: {{hover()!.remainingPoints}}</span>-->
-<!--        </div>-->
-<!--      }-->
-<!--      @if (hover()!.activePoints) {-->
-<!--        <div class="data-point">-->
-<!--          <svg><rect width="10" height="10" fill="blue"></rect></svg>-->
-<!--          <span>Active: {{hover()!.activePoints}}</span>-->
-<!--        </div>-->
-<!--      }-->
-<!--    }-->
-  </div>
+  <div class="hover" #hoverElement></div>
 </spinner-overlay>
