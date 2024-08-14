@@ -3,32 +3,9 @@ import {WorkItem} from "@app/velocity-scatter/work-item.service";
 import * as d3 from "d3";
 import {ContainerSelection, DataSelection, ElementSelection, Transition} from "@app/chart/d3";
 import {BurndownConfig} from "@app/burndown/burndownConfig";
-import {Action} from "@lib/reflection";
 import {Point} from "@app/chart/rect";
-import {distinct, distinctUntilChanged, Subject} from "rxjs";
-import {data} from "autoprefixer";
-
-export class TimeBucket {
-  label: string;
-
-  constructor(public min: number, public max: number) {
-    this.label = max.toString()
-  }
-
-  completedPoints = 0;
-  activePoints = 0;
-  remainingPoints = 0;
-  totalPoints = 0
-
-  // to act as a d3.ScaleBand Domain
-  valueOf() {
-    return this.max
-  }
-
-  toString() {
-    return this.valueOf().toString()
-  }
-}
+import {distinctUntilChanged, Subject} from "rxjs";
+import {TimeBucket} from "@app/burndown/timeBucket";
 
 export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private timeBuckets: TimeBucket[] = []
