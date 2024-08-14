@@ -52,9 +52,10 @@ export class BurndownHover {
         return
 
       this.container.transition()
-        .delay(500)
+        .delay(300)
         .duration(400)
         .style('opacity', 0)
+      this.visible = false
       return
     }
 
@@ -99,7 +100,7 @@ export class BurndownHover {
     rect.setY(this.svgRect.y + rect.y)
 
     const transition = this.container.transition()
-      .duration(400)
+      .duration(200)
 
     if (!this.visible) {
       this.container
@@ -110,7 +111,9 @@ export class BurndownHover {
       transition
         .style('left', rect.x + 'px')
         .style('top', rect.y + 'px')
+        .style('opacity', 1)
     }
+    this.visible = true
   }
 
   private setContent(bucket: TimeBucket) {
