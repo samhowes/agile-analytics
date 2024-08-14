@@ -8,6 +8,7 @@ import {distinctUntilChanged, Subject} from "rxjs";
 import {TimeBucket} from "@app/burndown/timeBucket";
 import {LineSeries, Series} from "@app/chart/lineSeries";
 import {BarSeries} from "@app/chart/barSeries";
+import {HoverSeries} from "@app/chart/hoverSeries";
 
 export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private timeBuckets: TimeBucket[] = []
@@ -24,6 +25,7 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private hover$ = new Subject<TimeBucket | null>();
 
   private series: Series<TimeBucket>[] = []
+  private hoverSeries: HoverSeries<TimeBucket>[] = []
   private seriesGroup!: ContainerSelection
 
   override init(config: BurndownConfig, svgElement: SVGSVGElement) {
@@ -31,10 +33,10 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     this.initElements();
 
     this.hover$.pipe(distinctUntilChanged()).subscribe((bucket) => {
-      if (!bucket) {
-        console.log('mouseleave')
-      } else {
-        console.log(bucket.max)
+      const transition = this.transition()
+        .duration(150)
+      for (const series of this.hoverSeries) {
+        series.hover(transition, bucket)
       }
     })
 
@@ -83,19 +85,37 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
         d => this.xScale.bandwidth(),
         d => this.height(d.completedPoints)
       ).setEnabled(() => this.config.showCompleted),
+
       new LineSeries<TimeBucket>(
         "burndown",
         this.seriesGroup.append('g'),
         d => this.xScale(d)! + this.xScale.bandwidth() / 2,
         d => this.yScale(d.remainingPoints)
       ),
+
       new LineSeries<TimeBucket>(
         "total-scope",
         this.seriesGroup.append('g'),
         d => this.xScale(d)! + this.xScale.bandwidth() / 2,
         d => this.yScale(d.totalPoints)
+      ),
+    ]
+    this.hoverSeries = [
+      new HoverSeries<TimeBucket>(
+        "burndown-points",
+        this.seriesGroup.append('g'),
+        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+        d => this.yScale(d.remainingPoints)
+      ),
+      new HoverSeries<TimeBucket>(
+        "total-scope-points",
+        this.seriesGroup.append('g'),
+        d => this.xScale(d)! + this.xScale.bandwidth() / 2,
+        d => this.yScale(d.totalPoints)
       )
     ]
+
+    this.series.push(...this.hoverSeries)
   }
 
   private makeBuckets() {

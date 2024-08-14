@@ -65,8 +65,17 @@
     path {
       stroke: $color;
     }
-    circle {
+  }
+
+  @mixin point-series($color) {
+    circle.point {
       fill: $color;
+      stroke: white;
+      stroke-width: 1px;
+    }
+    circle.halo {
+      fill: $color;
+      fill-opacity: 0.25;
     }
   }
 
@@ -74,7 +83,16 @@
     @include series(rgb(157, 157, 157));
   }
 
+  .series-burndown-points {
+    @include point-series(rgb(157, 157, 157));
+  }
+
   .series-total-scope {
     @include series(rgb(255, 164, 56));
   }
+
+  .series-total-scope-points {
+    @include point-series(rgb(255, 164, 56));
+  }
+
 }
