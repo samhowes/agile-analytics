@@ -127,6 +127,7 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
     this.hover = new BurndownHover(
       this.svgRect,
+      this.box,
       this.config,
       this.hoverElement,
       this.xScale,
@@ -226,8 +227,6 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     for (const series of this.series) {
       series.draw(transition, this.timeBuckets)
     }
-
-    this.hover$.next(this.timeBuckets[3])
   }
 
   private onHover(event: Point) {

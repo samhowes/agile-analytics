@@ -40,4 +40,16 @@ export class Rect {
       && this.width === other.width
       && this.height === other.height
   }
+
+  setX(value: number) {
+    this.x = value
+    this.left = value
+    this.right = this.left + this.width
+  }
+
+  setY(value: number) {
+    this.y = value
+    this.top = value
+    this.bottom = this.top + this.height
+  }
 }

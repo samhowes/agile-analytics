@@ -20,6 +20,7 @@ export class BurndownHover {
   private visible = false
   constructor(
     private svgRect: Rect,
+    private box: ChartBox,
     private config: BurndownConfig,
     private container: ElementSelection<HTMLDivElement>,
     private xScale: d3.ScaleBand<TimeBucket>,
@@ -59,23 +60,56 @@ export class BurndownHover {
 
     this.setContent(bucket)
 
-    const yOffset = -30;
-    const xOffset = 30
-    const y = this.yScale(bucket.remainingPoints) + this.svgRect.top + yOffset
-    const x = this.xScale(bucket)! + this.xScale.bandwidth() / 2 + this.svgRect.left + xOffset
+    const screenRect = this.container.node()!.getBoundingClientRect()
+
+    const yOffset = -screenRect.height/2;
+    const xOffset = 15
+    const baseY = this.yScale(bucket.remainingPoints)
+    const baseX = this.xScale(bucket)! + this.xScale.bandwidth() / 2
+
+    let rect = new Rect(
+      screenRect.width,
+      screenRect.height,
+      baseX - xOffset - screenRect.width,
+      baseY + yOffset,
+    )
+
+    // are we extending past the left side of the screen?
+    if (rect.left < this.box.inner.left) {
+      // swap to the right side instead of the left
+      rect.setX(baseX + xOffset)
+    }
+
+    // are we extending beyond the bottom?
+    const bottomDiff = this.box.inner.bottom - rect.bottom
+    if (bottomDiff < 0) {
+      // shift upwards
+      rect.setY(rect.y + bottomDiff)
+    }
+
+    // are we extending beyond the top?
+    const topDiff = rect.top - this.box.inner.top
+    if (topDiff < 0) {
+      // shift downwards, invert the negative number
+      rect.setY(rect.y + topDiff)
+    }
+
+    // adjust to screen coordinates
+    rect.setX(this.svgRect.x + rect.x)
+    rect.setY(this.svgRect.y + rect.y)
 
     const transition = this.container.transition()
       .duration(400)
 
     if (!this.visible) {
       this.container
-        .style('top', y + 'px')
-        .style('left', x + 'px')
+        .style('left', rect.x + 'px')
+        .style('top', rect.y + 'px')
       transition.style('opacity', 1)
     } else {
       transition
-        .style('top', y + 'px')
-        .style('left', x + 'px')
+        .style('left', rect.x + 'px')
+        .style('top', rect.y + 'px')
     }
   }
 
