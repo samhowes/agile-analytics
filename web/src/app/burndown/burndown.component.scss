@@ -84,7 +84,7 @@
     @include hover-key($name, $color);
   }
 
-  @include bar-series("completed", map.get($green, 30));
+  @include bar-series("completed", rgb(16,124,16));
   @include bar-series("active", map.get($azure, 30));
   @include bar-series("remaining", rgb(0,120,212));
 

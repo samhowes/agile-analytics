@@ -158,15 +158,16 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   }
 
   private initElements() {
-    this.plotBackground = this.svg.append('rect').classed('plot-background', true)
-      .on('mousemove', (event) => {
-        event.preventDefault()
-        this.onHover(event)
-      })
+    this.plotBackground = this.svg.append('rect')
+      .classed('plot-background', true)
+      .attr('fill', 'transparent')
     this.svg.on('mousemove', (event) => {
       const svgPoint = this.svgRect.mapPoint(event)
       if (!this.box.inner.contains(svgPoint)) {
         this.hover$.next(null)
+      } else {
+        event.preventDefault()
+        this.onHover(event)
       }
     })
     this.xAxis = this.svg.append('g')
