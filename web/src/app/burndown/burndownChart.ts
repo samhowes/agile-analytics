@@ -1,7 +1,7 @@
 import {D3Chart} from "@app/chart/d3Chart";
 import {WorkItem} from "@app/velocity-scatter/work-item.service";
 import * as d3 from "d3";
-import {ContainerSelection, D3, DataSelection, ElementSelection, Transition} from "@app/chart/d3";
+import {ContainerSelection, ElementSelection, Transition} from "@app/chart/d3";
 import {BurndownConfig} from "@app/burndown/burndownConfig";
 import {Point} from "@app/chart/rect";
 import {distinctUntilChanged, Subject} from "rxjs";
@@ -9,8 +9,10 @@ import {TimeBucket} from "@app/burndown/timeBucket";
 import {LineSeries, Series} from "@app/chart/lineSeries";
 import {BarSeries} from "@app/chart/barSeries";
 import {HoverSeries} from "@app/chart/hoverSeries";
+import {BurndownHover} from "@app/burndown/burndownHover";
 
 export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
+  private hoverElement!: ElementSelection<HTMLDivElement>;
   private timeBuckets: TimeBucket[] = []
 
   private xScale!: d3.ScaleBand<TimeBucket>;
@@ -23,6 +25,7 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   private yAxis!: ContainerSelection
 
   private hover$ = new Subject<TimeBucket | null>();
+  private hover!: BurndownHover
 
   private series: Series<TimeBucket>[] = []
   private hoverSeries: HoverSeries<TimeBucket>[] = []
@@ -35,6 +38,7 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     this.hover$.pipe(distinctUntilChanged()).subscribe((bucket) => {
       const transition = this.transition()
         .duration(150)
+      this.hover.hover(bucket)
       for (const series of this.hoverSeries) {
         series.hover(transition, bucket)
       }
@@ -43,6 +47,10 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     this.reInit();
 
     this.init$.next()
+  }
+
+  setHover(element: HTMLDivElement) {
+    this.hoverElement = d3.select(element)
   }
 
   reInit() {
@@ -116,6 +124,14 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     ]
 
     this.series.push(...this.hoverSeries)
+
+    this.hover = new BurndownHover(
+      this.svgRect,
+      this.config,
+      this.hoverElement,
+      this.xScale,
+      this.yScale
+    )
   }
 
   private makeBuckets() {
@@ -210,6 +226,8 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
     for (const series of this.series) {
       series.draw(transition, this.timeBuckets)
     }
+
+    this.hover$.next(this.timeBuckets[3])
   }
 
   private onHover(event: Point) {

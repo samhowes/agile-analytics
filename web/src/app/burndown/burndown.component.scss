@@ -37,23 +37,56 @@
   align-items: center;
 }
 
+.hover {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  background: $foreground;
+  opacity: 0;
+
+  display: flex;
+  flex-direction: column;
+  padding: .25rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-sizing: border-box;
+
+  ::ng-deep {
+    .data-point {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    svg {
+      height: 10px;
+      width: 10px;
+    }
+  }
+}
+
 :host::ng-deep {
   .bar {
     stroke: #fff;
     stroke-width: .5px;
   }
 
-  .series-completed .bar {
-    fill: map.get($green, 30);
+  @mixin hover-key($name, $color) {
+    .hover .data-point.data-point-#{$name} rect {
+      fill: $color;
+    }
   }
 
-  .series-active .bar {
-    fill: map.get($azure, 30);
+  @mixin bar-series($name, $color) {
+    .series-#{$name} {
+      .bar {
+        fill: $color;
+      }
+    }
+    @include hover-key($name, $color);
   }
 
-  .series-remaining .bar {
-    fill: rgb(0,120,212);
-  }
+  @include bar-series("completed", map.get($green, 30));
+  @include bar-series("active", map.get($azure, 30));
+  @include bar-series("remaining", rgb(0,120,212));
 
   path.series-line {
     fill: none;
@@ -61,10 +94,13 @@
     stroke-miterlimit: 1;
   }
 
-  @mixin series($color) {
-    path {
-      stroke: $color;
+  @mixin series($name, $color) {
+    .series-#{$name} {
+      path {
+        stroke: $color;
+      }
     }
+    @include hover-key($name, $color);
   }
 
   @mixin point-series($color) {
@@ -79,16 +115,11 @@
     }
   }
 
-  .series-burndown {
-    @include series(rgb(157, 157, 157));
-  }
+  @include series("burndown", rgb(157, 157, 157));
+  @include series("total-scope", rgb(255, 164, 56));
 
   .series-burndown-points {
     @include point-series(rgb(157, 157, 157));
-  }
-
-  .series-total-scope {
-    @include series(rgb(255, 164, 56));
   }
 
   .series-total-scope-points {

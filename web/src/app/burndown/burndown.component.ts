@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, inject, OnInit, signal, viewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, inject, OnInit, Signal, signal, viewChild} from '@angular/core';
 import {SpinnerOverlay} from "@app/components/spinner-overlay.component";
 import {WorkItemService} from "@app/velocity-scatter/work-item.service";
 import {combineLatest} from "rxjs";
@@ -8,6 +8,8 @@ import {ConfigureBurndownComponent} from "@app/burndown/configure-burndown/confi
 import {MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 import {BurndownConfig} from "@app/burndown/burndownConfig";
+import {toSignal} from "@angular/core/rxjs-interop";
+import {TimeBucket} from "@app/burndown/timeBucket";
 
 @Component({
   selector: 'burndown',
@@ -25,6 +27,7 @@ import {BurndownConfig} from "@app/burndown/burndownConfig";
 })
 export class BurndownComponent implements OnInit, AfterViewInit {
   svgElement = viewChild.required<ElementRef<SVGSVGElement>>('svg');
+  hoverElement = viewChild.required<ElementRef<HTMLDivElement>>('hoverElement');
   private chart = inject(BurndownChart);
   private workItemService = inject(WorkItemService);
 
@@ -43,6 +46,7 @@ export class BurndownComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    this.chart.setHover(this.hoverElement().nativeElement);
     this.chart.init(this.config, this.svgElement().nativeElement);
   }
 

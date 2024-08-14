@@ -7,5 +7,9 @@ export class BurndownConfig extends StateManager{
   pointsMax = 50
   timeMax = 100
   timeIncrement = 10
+
   showCompleted: boolean = true;
+  showActive: boolean = true;
+  showBurndown: boolean = true;
+  showTotalScope: boolean = true;
 }
