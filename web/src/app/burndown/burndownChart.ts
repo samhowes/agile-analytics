@@ -33,6 +33,7 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
 
   override init(config: BurndownConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement)
+    this.makeBuckets();
     this.initElements();
 
     this.hover$.pipe(distinctUntilChanged()).subscribe((bucket) => {
@@ -54,8 +55,6 @@ export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
   }
 
   reInit() {
-    this.makeBuckets();
-
     this.xScale = d3.scaleBand<TimeBucket>().domain(this.timeBuckets)
       .paddingOuter(.1)
       .paddingInner(.4)
