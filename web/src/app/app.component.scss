@@ -12,7 +12,11 @@
   gap: .5rem;
   flex: 1;
   padding: .5rem;
-  * {
+
+  .chart-row {
+    display: flex;
+    flex: 1;
+    gap: 1rem;
     max-height: 500px;
   }
 }

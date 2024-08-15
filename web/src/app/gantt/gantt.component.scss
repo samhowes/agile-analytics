@@ -1,0 +1,8 @@
+@use "utils" as *;
+@use "d3" as *;
+
+:host {
+  @extend .d3-svg-container;
+  @extend .chart-card;
+  position: relative;
+}
