@@ -8,7 +8,7 @@ export class Cursor {
   visible: boolean = false;
   location: Point;
 
-  constructor(private group: ContainerSelection, private box: Rect) {
+  constructor(private group: ContainerSelection, private box: () => Rect) {
     this.hide()
     this.location = {x: 0, y: 0}
     this.xLine = group.append('line')
@@ -35,12 +35,12 @@ export class Cursor {
     this.xLine
       .attr('x1', location.x)
       .attr('x2', location.x)
-      .attr('y1', this.box.top)
-      .attr('y2', this.box.bottom)
+      .attr('y1', this.box().top)
+      .attr('y2', this.box().bottom)
 
     this.yLine
-      .attr('x1', this.box.left)
-      .attr('x2', this.box.right)
+      .attr('x1', this.box().left)
+      .attr('x2', this.box().right)
       .attr('y1', location.y)
       .attr('y2', location.y)
 

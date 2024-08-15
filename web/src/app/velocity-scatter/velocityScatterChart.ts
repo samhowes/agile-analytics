@@ -38,16 +38,23 @@ export class VelocityScatterChart extends D3Chart<VelocityScatterConfig, WorkIte
 
   override init(config: VelocityScatterConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement)
-
-    this.xScale = d3.scaleLinear().domain([0, this.config.timeMax])
-    this.yScale = d3.scaleLinear().domain([0, this.config.pointsMax])
-
-    this.setSizes()
     this.initElements();
-    this.setAxes()
     this.initCursor()
 
+    this.xScale = d3.scaleLinear()
+    this.yScale = d3.scaleLinear()
+
+    this.reInit()
+
     this.init$.next()
+  }
+
+  override reInit() {
+    this.xScale.domain([0, this.config.timeMax])
+    this.yScale.domain([0, this.config.pointsMax])
+
+    this.setSizes()
+    this.setAxes()
   }
 
   override setSizes() {
@@ -77,7 +84,7 @@ export class VelocityScatterChart extends D3Chart<VelocityScatterConfig, WorkIte
   }
 
   private initCursor() {
-    this.cursor = new Cursor(this.cursorGroup, this.box.inner)
+    this.cursor = new Cursor(this.cursorGroup, () => this.box.inner)
     this.svg.on('mousemove mouseenter', e => {
       const location = this.svgRect.mapPoint(e)
       if (!this.box.inner.contains(location)) {

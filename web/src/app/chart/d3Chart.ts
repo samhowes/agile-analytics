@@ -29,6 +29,8 @@ export abstract class D3Chart<TConfig, TData> {
       .observe(this.svgElement)
   }
 
+  abstract reInit(): void;
+
   private getSvgRect() {
     const rect = this.svgElement.getBoundingClientRect();
     return new Rect(rect.width, rect.height, rect.x, rect.y)

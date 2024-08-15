@@ -10,8 +10,9 @@ import {LineSeries, Series} from "@app/chart/lineSeries";
 import {BarSeries} from "@app/chart/barSeries";
 import {HoverSeries} from "@app/chart/hoverSeries";
 import {BurndownHover} from "@app/burndown/burndownHover";
+import {HoverChart} from "@app/chart/hoverChart";
 
-export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> {
+export class BurndownChart extends D3Chart<BurndownConfig, WorkItem[]> implements HoverChart {
   private hoverElement!: ElementSelection<HTMLDivElement>;
   private timeBuckets: TimeBucket[] = []
 
