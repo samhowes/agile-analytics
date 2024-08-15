@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {WorkItem} from "./work-item.service";
+import {WorkItem} from "../data/work-item.service";
 import {Subject} from "rxjs";
 import {Point, Rect} from "../chart/rect";
 import {Cursor} from "./cursor";

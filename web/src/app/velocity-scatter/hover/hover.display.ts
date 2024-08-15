@@ -1,6 +1,6 @@
 import {ObjMap} from "@lib/objMap";
 import {HoverEvent} from "@app/velocity-scatter/velocityScatterChart";
-import {WorkItem} from "@app/velocity-scatter/work-item.service";
+import {WorkItem} from "@app/data/work-item.service";
 import {BehaviorSubject} from "rxjs";
 
 export class HoverDisplay {

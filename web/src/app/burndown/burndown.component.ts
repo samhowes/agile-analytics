@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, inject, OnInit, Signal, signal, viewChild} from '@angular/core';
 import {SpinnerOverlay} from "@app/components/spinner-overlay.component";
-import {WorkItemService} from "@app/velocity-scatter/work-item.service";
+import {WorkItemService} from "@app/data/work-item.service";
 import {combineLatest} from "rxjs";
 import {BurndownChart} from "@app/burndown/burndownChart";
 import {NgIf} from "@angular/common";

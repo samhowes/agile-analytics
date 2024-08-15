@@ -1,5 +1,5 @@
 import {D3Chart} from "@app/chart/d3Chart";
-import {WorkItem} from "@app/velocity-scatter/work-item.service";
+import {WorkItem} from "@app/data/work-item.service";
 import * as d3 from "d3";
 import {ContainerSelection, ElementSelection, Transition} from "@app/chart/d3";
 import {BurndownConfig} from "@app/burndown/burndownConfig";
