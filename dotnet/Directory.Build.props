@@ -1,0 +1,25 @@
+<Project>
+    <PropertyGroup>
+        <BaseName>SamHowes.Analytics</BaseName>
+
+        <BazelWorkspacePath>$(MSBuildThisFileDirectory)</BazelWorkspacePath>
+        <BazelPackage>$([MSBuild]::MakeRelative($(BazelWorkspacePath), $(MSBuildProjectDirectory)).Replace('\','/'))</BazelPackage>
+        <!-- If the file is at the root, msbuild will generate a relative path to this directory, we want this to be empty -->
+        <BazelPackage Condition="$(BazelPackage.StartsWith(../))"></BazelPackage>
+
+        <Prefix>$(BaseName)</Prefix>
+        <AssemblyName>$(Prefix).$(BazelPackage.Replace('/','.'))</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Authors>Sam Howes</Authors>
+        <Version>0.0.1</Version>
+        <RepositoryUrl>https://github.com/samhowes/agile-analytics</RepositoryUrl>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
+
+</Project>
