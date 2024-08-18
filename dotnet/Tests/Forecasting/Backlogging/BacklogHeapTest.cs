@@ -1,14 +1,15 @@
 using FluentAssertions;
 using SamHowes.Analytics.Forecasting;
+using SamHowes.Analytics.Forecasting.Backlogging;
 
 namespace SamHowes.Analytics.Tests.Forecasting;
 
-public class BacklogQueueTests
+public class BacklogHeapTest
 {
     [Fact]
     public void It_Works()
     {
-        var queue = new BacklogQueue();
+        var queue = new BacklogHeap();
 
         var a = new WorkItem()
         {

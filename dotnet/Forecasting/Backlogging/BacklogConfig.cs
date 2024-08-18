@@ -1,9 +1,13 @@
+using System.Collections;
+
 namespace SamHowes.Analytics.Forecasting.Backlogging;
 
 public class BacklogConfig(string topLevel)
 {
     public string TopLevel { get; } = topLevel;
     public double DefaultStoryPoints { get; set; } = 5.0;
+    public List<string> PrimaryContributors { get; set; } = [];
+    public string TeamDomain { get; set; }
 
     public HashSet<string> Workable = [];
 }
@@ -22,13 +26,6 @@ public enum JiraWorkItemType
     Story,
     Task,
     Bug,
-}
-
-public enum WorkItemState
-{
-    New,
-    Active,
-    Closed
 }
 
 public class AzureBacklogConfig : BacklogConfig
