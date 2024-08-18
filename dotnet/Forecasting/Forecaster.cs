@@ -3,7 +3,7 @@ using SamHowes.Analytics.Forecasting.Teams;
 
 namespace SamHowes.Analytics.Forecasting;
 
-public class Forecaster(Team team, ForecastingClock clock)
+public class Forecaster(ForecastingClock clock)
 {
     public void Forecast(Backlog backlog)
     {
@@ -12,14 +12,14 @@ public class Forecaster(Team team, ForecastingClock clock)
         var completedWork = false;
         do
         {
-            StartWork();
+            StartWork(backlog.Team);
         
-            completedWork = CompleteWork();    
+            completedWork = CompleteWork(backlog.Team);    
         } while (completedWork);
         
     }
 
-    public void StartWork()
+    public void StartWork(Team team)
     {
         if (team.NeedsWork.Count == 0)
         {
@@ -76,7 +76,7 @@ public class Forecaster(Team team, ForecastingClock clock)
             
             if (item.Workable && item.WorkState == WorkState.Active)
             {
-                team.Start(item);
+                backlog.Team.Start(item);
             }
 
             return true;
@@ -87,7 +87,7 @@ public class Forecaster(Team team, ForecastingClock clock)
             {
                 if (item.Workable)
                 {
-                    team.Queue(item);
+                    backlog.Team.Queue(item);
                     return false;
                 }
 
@@ -96,7 +96,7 @@ public class Forecaster(Team team, ForecastingClock clock)
             .Iterate(backlog.Items);
     }
 
-    public bool CompleteWork()
+    public bool CompleteWork(Team team)
     {
         if (team.ActiveWork.Size == 0)
             return false;
@@ -110,7 +110,7 @@ public class Forecaster(Team team, ForecastingClock clock)
             item.WorkState = WorkState.Completed;
             team.NeedsWork.Add(item.Contributor!);
 
-            QueueNextItem(item);
+            QueueNextItem(team, item);
             
             var it = item.Parent;
             while (it != null && it.WorkState < WorkState.Completed)
@@ -129,7 +129,7 @@ public class Forecaster(Team team, ForecastingClock clock)
         return true;
     }
 
-    private void QueueNextItem(WorkItem item)
+    private void QueueNextItem(Team team, WorkItem item)
     {
         if (item.Parent == null)
             return;

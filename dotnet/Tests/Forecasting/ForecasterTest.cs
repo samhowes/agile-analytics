@@ -29,7 +29,7 @@ public class ForecasterTest
         _team = new Team(new Predictor(clock, new PredictorConfig()));
         _fred = new Contributor("fred");
         _dave = new Contributor("dave");
-        _forecaster = new Forecaster(_team, clock);
+        _forecaster = new Forecaster(clock);
         _backlog = new Backlog(config, _team);
     }
 
@@ -162,7 +162,7 @@ public class ForecasterTest
             .Build();
         
         _forecaster.QueueWork(_backlog);
-        _forecaster.StartWork();
+        _forecaster.StartWork(_team);
         
         _team.Unassigned.Size.Should().Be(0);
         _dave.Active.Count.Should().Be(1);
@@ -187,7 +187,7 @@ public class ForecasterTest
         _fred.Work.Size.Should().Be(1);
         _fred.Work.Peek().Should().Be(assignedToFred);
         
-        _forecaster.StartWork();
+        _forecaster.StartWork(_team);
         
         _fred.Active.Count.Should().Be(1);
         var active = _fred.Active.First();
@@ -213,7 +213,7 @@ public class ForecasterTest
         _fred.Work.Size.Should().Be(1);
         _fred.Work.Peek().Should().Be(shouldBeFred);
         
-        _forecaster.StartWork();
+        _forecaster.StartWork(_team);
         
         _fred.Active.Count.Should().Be(1);
         _dave.Active.Count.Should().Be(1);
@@ -236,8 +236,8 @@ public class ForecasterTest
             .Build();
         
         _forecaster.QueueWork(_backlog);
-        _forecaster.StartWork();
-        _forecaster.CompleteWork();
+        _forecaster.StartWork(_team);
+        _forecaster.CompleteWork(_team);
         
         story.WorkState.Should().Be(WorkState.Completed);
         feature.WorkState.Should().Be(WorkState.Completed);
@@ -265,8 +265,8 @@ public class ForecasterTest
             .Build();
         
         _forecaster.QueueWork(_backlog);
-        _forecaster.StartWork();
-        _forecaster.CompleteWork();
+        _forecaster.StartWork(_team);
+        _forecaster.CompleteWork(_team);
         
         _team.Unassigned.Size.Should().Be(1);
         _team.Unassigned.Peek().Should().Be(story);
