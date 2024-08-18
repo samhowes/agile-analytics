@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {BehaviorSubject, Observable} from "rxjs";
 import seedrandom from 'seedrandom';
+import {HttpClient} from "@angular/common/http";
 
 export interface WorkItem {
   assignee: string;
@@ -27,8 +28,14 @@ export class WorkItems {
   }
 }
 
+export interface GanttItem {
+
+}
+
 @Injectable({providedIn: 'root'})
 export class WorkItemService {
+  constructor(private http: HttpClient) {
+  }
   getCompleted(): Observable<WorkItem[]> {
     return new BehaviorSubject<WorkItem[]>([
       WorkItems.completed("Add hover over Work Item", 3, 10),
@@ -36,5 +43,9 @@ export class WorkItemService {
       WorkItems.completed("Add selection", 8, 80),
       WorkItems.completed("Implement screen resizing", 3, 49),
     ])
+  }
+
+  getGantt(): Observable<GanttItem[]> {
+    return this.http.get<GanttItem[]>('api/gantt/forecast')
   }
 }

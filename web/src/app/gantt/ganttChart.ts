@@ -1,6 +1,6 @@
 import {D3Chart} from "@app/chart/d3Chart";
 import {GanttConfig} from "@app/gantt/ganttConfig";
-import {WorkItem} from "@app/data/work-item.service";
+import {GanttItem, WorkItem} from "@app/data/work-item.service";
 import {HoverChart} from "@app/chart/hoverChart";
 import {ContainerSelection} from "@app/chart/d3";
 import * as d3 from "d3";
@@ -8,7 +8,7 @@ import {TimeBucket} from "@app/burndown/timeBucket";
 
 export class GanttSlot {}
 
-export class GanttChart extends D3Chart<GanttConfig, WorkItem[]> implements HoverChart {
+export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements HoverChart {
   private xAxis!: ContainerSelection
   private yAxis!: ContainerSelection
 

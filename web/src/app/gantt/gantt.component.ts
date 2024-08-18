@@ -38,7 +38,7 @@ export class GanttComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.config.load()
-    combineLatest([this.workItemService.getCompleted(), this.chart.init$]).subscribe(results => {
+    combineLatest([this.workItemService.getGantt(), this.chart.init$]).subscribe(results => {
       this.isLoading.set(false)
       this.chart.setData(results[0])
     })

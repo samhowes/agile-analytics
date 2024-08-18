@@ -272,6 +272,29 @@ public class ForecasterTest
         _team.Unassigned.Peek().Should().Be(story);
     }
 
+    [Fact]
+    public void Forecast_ShouldCompleteAllWork()
+    {
+        Contributors(_fred);
+        Backlog()
+            .Epic()     // 1
+            .Feature()  // 2
+            .Story()    // 3
+            .Story()    // 4
+            .Story()    // 5
+            .Build();
+        
+        _forecaster.Forecast(_backlog);
+
+        new BacklogIterator()
+            .OnDescend(item =>
+            {
+                item.CompletedAt.Should().NotBeNull();
+                return true;
+            })
+            .Iterate(_backlog.Items);
+    }
+
     private BacklogBuilder Backlog()
     {
         var builder = new BacklogBuilder(_backlog);

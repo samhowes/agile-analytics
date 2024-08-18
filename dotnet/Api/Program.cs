@@ -1,6 +1,9 @@
-var builder = WebApplication.CreateBuilder(args);
+using SamHowes.Analytics.Forecasting;
+using SamHowes.Extensions.DependencyInjection.Modules.Web;
 
-// Add services to the container.
+var builder = new WebInjectorBuilder(WebApplication.CreateBuilder(args));
+
+builder.AddModule(new ForecastingModule());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

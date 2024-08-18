@@ -4,6 +4,17 @@ namespace SamHowes.Analytics.Forecasting.Backlogging;
 
 public class BacklogConfig(string topLevel)
 {
+    public static BacklogConfig DefaultAzure()
+    {
+        return new BacklogConfig(AzureWorKItemType.Epic.ToString())
+        {
+            Workable =
+            [
+                AzureWorKItemType.Story.ToString(),
+                AzureWorKItemType.Bug.ToString(),
+            ]
+        };
+    }
     public string TopLevel { get; } = topLevel;
     public double DefaultStoryPoints { get; set; } = 5.0;
     public List<string> PrimaryContributors { get; set; } = [];

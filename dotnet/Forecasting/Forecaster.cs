@@ -5,6 +5,7 @@ namespace SamHowes.Analytics.Forecasting;
 
 public class Forecaster(ForecastingClock clock)
 {
+    public ForecastingClock Clock { get; } = clock;
     public void Forecast(Backlog backlog)
     {
         QueueWork(backlog);
@@ -124,7 +125,7 @@ public class Forecaster(ForecastingClock clock)
             }
         }
 
-        clock.Set(completedAt!.Value);
+        Clock.Set(completedAt!.Value);
 
         return true;
     }
@@ -133,7 +134,7 @@ public class Forecaster(ForecastingClock clock)
     {
         if (item.Parent == null)
             return;
-        if (item.Index > 0 && item.Parent.Children[item.Index - 1].WorkState > WorkState.New)
+        if (item.Index > 0 && item.Parent.Children[item.Index - 1].WorkState < WorkState.Completed)
             return; // this item was executed out of order
         
         for (var i = item.Index + 1; i < item.Parent.Children.Count; i++)
