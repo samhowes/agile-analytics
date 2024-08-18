@@ -6,10 +6,10 @@ namespace SamHowes.Analytics.Forecasting.Teams;
 public class Team(Predictor predictor)
 {
     public Dictionary<string, Contributor> Contributors { get; } = [];
-    public OrderedSet<Contributor> NeedsWork { get; }= [];
 
     public BacklogHeap Unassigned { get; set; } = new();
-    public MinHeap<WorkItem> ActiveWork { get; }= new((a,b) => a.CompletedAt!.Value.CompareTo(b.CompletedAt!.Value));
+    public MinHeap<WorkItem> ActiveWork { get; } = new((a,b) => a.CompletedAt!.Value.CompareTo(b.CompletedAt!.Value));
+    public OrderedSet<Contributor> NeedsWork { get; } = [];
 
     public Contributor Contributor(string email) {
         if (!Contributors.TryGetValue(email, out var contributor))
@@ -22,10 +22,10 @@ public class Team(Predictor predictor)
 
     public void Start(WorkItem item)
     {
-        Start(Contributor(item.AssignedTo!.UserEmail!), item);
+        Start(item, Contributor(item.AssignedTo!.UserEmail!));
     }
 
-    private void Start(Contributor contributor, WorkItem item)
+    public void Start(WorkItem item, Contributor contributor)
     {
         if (!item.Workable)
             throw new Exception("Can't start an unworkable item.");
@@ -36,7 +36,6 @@ public class Team(Predictor predictor)
         predictor.Predict(item);
         
         ActiveWork.Push(item);
-        NeedsWork.Remove(contributor);
 
         var it = item;
         while (it != null)

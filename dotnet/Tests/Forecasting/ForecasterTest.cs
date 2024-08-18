@@ -23,13 +23,13 @@ public class ForecasterTest
         {
             Workable = ["Story", "Bug"]
         };
-        var clock = new Mock<IClock>();
+        
         _now = new DateTimeOffset(new DateTime(2024, 5, 1, 12, 0, 0, DateTimeKind.Utc));
-        clock.Setup(c => c.Now).Returns(_now);
-        _team = new Team(new Predictor(clock.Object, new PredictorConfig()));
+        var clock = new ForecastingClock(_now);
+        _team = new Team(new Predictor(clock, new PredictorConfig()));
         _fred = _team.Contributor("fred");
         _dave = _team.Contributor("dave");
-        _forecaster = new Forecaster(_team);
+        _forecaster = new Forecaster(_team, clock);
         _backlog = new Backlog(config, _team);
     }
 
@@ -62,22 +62,22 @@ public class ForecasterTest
             .Epic()
             .Feature()
             .Story(_dave)
+            .Grab(out var daveStory)
             .Story(_fred)
+            .Grab(out var fredStory)
             .Build();
 
         _forecaster.Forecast(_backlog);
 
-        var daveStory = _map[3];
         daveStory.Contributor.Should().Be(_dave);
         daveStory.StartedAt.Should().Be(_now);
         daveStory.WorkState.Should().Be(WorkState.Completed);
         daveStory.CompletedAt.Should().Be(_now.AddDays(5));
 
-        var fredStory = _map[4];
         fredStory.Contributor.Should().Be(_fred);
-        fredStory.StartedAt.Should().Be(_now);
+        fredStory.StartedAt.Should().Be(daveStory.CompletedAt);
         fredStory.WorkState.Should().Be(WorkState.Completed);
-        fredStory.CompletedAt.Should().Be(_now.AddDays(10));
+        fredStory.CompletedAt.Should().Be(_now.AddDays(15));
 
         var feature = _map[2];
         feature.WorkState.Should().Be(WorkState.Completed);
@@ -134,6 +134,125 @@ public class ForecasterTest
         story.Id.Should().Be("3");
     }
 
+    [Fact]
+    public void StartWork_Works()
+    {
+        _team.Contributors.Remove(_fred.Email);
+        Backlog()
+            .Epic()
+            .Feature()
+            .Story()
+            .Build();
+        
+        _forecaster.QueueWork(_backlog);
+        _forecaster.StartWork();
+        
+        _team.Unassigned.Size.Should().Be(0);
+        _dave.Active.Count.Should().Be(1);
+    }
+    
+    [Fact]
+    public void StartWork_HigherPriorityUnassigned_TakesPrecedence()
+    {
+        _team.Contributors.Remove(_dave.Email);
+        Backlog()
+            .Epic()
+            .Feature()
+            .Story()
+            .Grab(out var shouldBeActive)
+            
+            .Feature()
+            .Story(_fred)
+            .Grab(out var assignedToFred)
+            .Build();
+        
+        _forecaster.QueueWork(_backlog);
+        _fred.Work.Size.Should().Be(1);
+        _fred.Work.Peek().Should().Be(assignedToFred);
+        
+        _forecaster.StartWork();
+        
+        _fred.Active.Count.Should().Be(1);
+        var active = _fred.Active.First();
+        active.Should().Be(shouldBeActive);
+    }
+
+    [Fact]
+    public void StartWork_FillsInFreeWorkers_First()
+    {
+        Backlog()
+            .Epic()
+            .Feature()
+            .Story()
+            .Grab(out var shouldBeDave)
+            
+            .Feature()
+            .Story(_fred)
+            .Grab(out var shouldBeFred)
+            .Build();
+        
+        _forecaster.QueueWork(_backlog);
+        _fred.Work.Size.Should().Be(1);
+        _fred.Work.Peek().Should().Be(shouldBeFred);
+        
+        _forecaster.StartWork();
+        
+        _fred.Active.Count.Should().Be(1);
+        _dave.Active.Count.Should().Be(1);
+
+        _fred.Active.First().Should().Be(shouldBeFred);
+        _dave.Active.First().Should().Be(shouldBeDave);
+    }
+
+    [Fact]
+    public void CompleteWork_Works()
+    {
+        _team.Contributors.Remove(_dave.Email);
+        Backlog()
+            .Epic()
+            .Grab(out var epic)
+            .Feature()
+            .Grab(out var feature)
+            .Story()
+            .Grab(out var story)
+            .Build();
+        
+        _forecaster.QueueWork(_backlog);
+        _forecaster.StartWork();
+        _forecaster.CompleteWork();
+        
+        story.WorkState.Should().Be(WorkState.Completed);
+        feature.WorkState.Should().Be(WorkState.Completed);
+        epic.WorkState.Should().Be(WorkState.Completed);
+        
+        feature.CompletedAt.Should().Be(story.CompletedAt);
+        epic.CompletedAt.Should().Be(story.CompletedAt);
+        
+        _fred.Active.Count.Should().Be(0);
+
+        _team.NeedsWork.Should().Contain(_fred);
+    }
+    
+    
+    [Fact]
+    public void CompleteWork_QueuesNextItem()
+    {
+        Backlog()
+            .Epic()
+            .Feature()
+            .Story()
+            .Story()
+            .Grab(out var story)
+            .Build();
+        
+        _forecaster.QueueWork(_backlog);
+        _forecaster.StartWork();
+        _forecaster.CompleteWork();
+        
+        _team.Unassigned.Size.Should().Be(1);
+        _team.Unassigned.Peek().Should().Be(story);
+    }
+    
     private WorkItem WorkItem(AzureWorKItemType type, int? parentId = null, double? storyPoints = null,
         Contributor? contributor = null, WorkItemState? workState = null)
     {

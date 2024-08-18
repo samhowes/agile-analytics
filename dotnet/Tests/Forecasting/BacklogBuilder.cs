@@ -73,4 +73,10 @@ public class BacklogBuilder(Backlog backlog)
         _last!.Contributor = contributor;
         return this;
     }
+
+    public BacklogBuilder Grab(out WorkItem item)
+    {
+        item = _last!;
+        return this;
+    }
 }

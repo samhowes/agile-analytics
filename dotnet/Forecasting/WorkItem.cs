@@ -45,4 +45,9 @@ public class WorkItem
     public Contributor? Contributor { get; set; }
     public double? DaysRemaining { get; set; }
     public int Index { get; set; }
+
+    public override string ToString()
+    {
+        return $"{{Id: {Id}, Contributor: {Contributor?.Ldap ?? "null"}}}";
+    }
 }
