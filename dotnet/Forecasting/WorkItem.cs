@@ -48,6 +48,6 @@ public class WorkItem
 
     public override string ToString()
     {
-        return $"{{Id: {Id}, Contributor: {Contributor?.Ldap ?? "null"}}}";
+        return $"{{Id: {Id}, Contributor: {Contributor?.Ldap ?? "null"}, State: {WorkState}}}";
     }
 }

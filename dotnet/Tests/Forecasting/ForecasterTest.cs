@@ -27,15 +27,24 @@ public class ForecasterTest
         _now = new DateTimeOffset(new DateTime(2024, 5, 1, 12, 0, 0, DateTimeKind.Utc));
         var clock = new ForecastingClock(_now);
         _team = new Team(new Predictor(clock, new PredictorConfig()));
-        _fred = _team.Contributor("fred");
-        _dave = _team.Contributor("dave");
+        _fred = new Contributor("fred");
+        _dave = new Contributor("dave");
         _forecaster = new Forecaster(_team, clock);
         _backlog = new Backlog(config, _team);
+    }
+
+    private void Contributors(params Contributor[] contributors)
+    {
+        foreach (var contributor in contributors)
+        {
+            _team.Contributors[contributor.Email] = contributor;
+        }
     }
 
     [Fact]
     public void Assignments_TrickleDown()
     {
+        Contributors(_dave);
         Backlog()
             .Epic()
             .Assign(_dave)
@@ -58,6 +67,7 @@ public class ForecasterTest
     [Fact]
     public void MultiplePeople_CanWorkOnTheSameFeature()
     {
+        Contributors(_dave, _fred);
         Backlog()
             .Epic()
             .Feature()
@@ -77,7 +87,7 @@ public class ForecasterTest
         fredStory.Contributor.Should().Be(_fred);
         fredStory.StartedAt.Should().Be(daveStory.CompletedAt);
         fredStory.WorkState.Should().Be(WorkState.Completed);
-        fredStory.CompletedAt.Should().Be(_now.AddDays(15));
+        fredStory.CompletedAt.Should().Be(_now.AddDays(10));
 
         var feature = _map[2];
         feature.WorkState.Should().Be(WorkState.Completed);
@@ -87,30 +97,37 @@ public class ForecasterTest
     [Fact]
     public void OutOfOrderActive_DoesActiveFirst_ThenInOrder()
     {
-        _backlog.Ingest([
-            WorkItem(AzureWorKItemType.Epic),
-            WorkItem(AzureWorKItemType.Feature, 1),
-            WorkItem(AzureWorKItemType.Story, 2, 5.0),
-            WorkItem(AzureWorKItemType.Story, 2, 10.0, _fred, WorkItemState.Active),
-            WorkItem(AzureWorKItemType.Story, 2, 5.0),
-        ]);
+        Contributors(_fred, _dave);
+        Backlog()
+            .Epic()
+            .Feature()
+            .Story() // should be started immediately
+            .Grab(out var firstStory)
+            .Points(10)
+            .Story(_fred, WorkItemState.Active) // should be done first
+            .Grab(out var secondStory)
+            .Story() // should be done third, after the first story in the feature
+            .Grab(out var lastStory)
+            .Build();
 
         _forecaster.Forecast(_backlog);
-
-        var epic = _backlog.Items[0];
-        var feature = epic.Children[0];
-
-        var first = feature.Children[0];
-        var second = feature.Children[1];
-        var last = feature.Children[2];
-
-        Assert.True(second.CompletedAt < last.CompletedAt);
-        Assert.True(first.CompletedAt < last.CompletedAt);
+        
+        firstStory.CompletedAt.Should().NotBeNull();
+        secondStory.CompletedAt.Should().NotBeNull();
+        lastStory.CompletedAt.Should().NotBeNull();
+        
+        // first and second stories are worked in parallel
+        firstStory.StartedAt.Should().Be(secondStory.StartedAt);
+        
+        // last story is only worked once the first story is complete
+        // "Active creates parallel, then resume serial from the start"
+        lastStory.StartedAt.Should().Be(firstStory.CompletedAt);
     }
 
     [Fact]
     public void QueueWork_Works()
     {
+        Contributors(_dave, _fred);
         Backlog()
             .Epic()
             .Feature()
@@ -137,7 +154,7 @@ public class ForecasterTest
     [Fact]
     public void StartWork_Works()
     {
-        _team.Contributors.Remove(_fred.Email);
+        Contributors(_dave);
         Backlog()
             .Epic()
             .Feature()
@@ -154,7 +171,7 @@ public class ForecasterTest
     [Fact]
     public void StartWork_HigherPriorityUnassigned_TakesPrecedence()
     {
-        _team.Contributors.Remove(_dave.Email);
+        Contributors(_fred);
         Backlog()
             .Epic()
             .Feature()
@@ -180,6 +197,7 @@ public class ForecasterTest
     [Fact]
     public void StartWork_FillsInFreeWorkers_First()
     {
+        Contributors(_dave, _fred);
         Backlog()
             .Epic()
             .Feature()
@@ -207,7 +225,7 @@ public class ForecasterTest
     [Fact]
     public void CompleteWork_Works()
     {
-        _team.Contributors.Remove(_dave.Email);
+        Contributors(_fred);
         Backlog()
             .Epic()
             .Grab(out var epic)
@@ -237,6 +255,7 @@ public class ForecasterTest
     [Fact]
     public void CompleteWork_QueuesNextItem()
     {
+        Contributors(_fred, _dave);
         Backlog()
             .Epic()
             .Feature()
@@ -251,27 +270,6 @@ public class ForecasterTest
         
         _team.Unassigned.Size.Should().Be(1);
         _team.Unassigned.Peek().Should().Be(story);
-    }
-    
-    private WorkItem WorkItem(AzureWorKItemType type, int? parentId = null, double? storyPoints = null,
-        Contributor? contributor = null, WorkItemState? workState = null)
-    {
-        var id = _workItemId++;
-        var workItem = new WorkItem()
-        {
-            Id = id.ToString(),
-            Type = type.ToString(),
-            Title = id.ToString(),
-            ParentId = parentId.ToString(),
-            StoryPoints = storyPoints,
-            State = workState ?? WorkItemState.New
-        };
-
-        _map[id] = workItem;
-
-        if (contributor != null)
-            workItem.AssignedTo = new AzureUser(contributor.Email);
-        return workItem;
     }
 
     private BacklogBuilder Backlog()

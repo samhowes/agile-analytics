@@ -27,9 +27,9 @@ public class BacklogBuilder(Backlog backlog)
         return this;
     }
 
-    public BacklogBuilder Story(Contributor? contributor = null)
+    public BacklogBuilder Story(Contributor? contributor = null, WorkItemState state = WorkItemState.New)
     {
-        WorkItem(AzureWorKItemType.Story, ParentId(_feature), null, contributor);
+        WorkItem(AzureWorKItemType.Story, ParentId(_feature), null, contributor, state);
         return this;
     }
 
@@ -77,6 +77,12 @@ public class BacklogBuilder(Backlog backlog)
     public BacklogBuilder Grab(out WorkItem item)
     {
         item = _last!;
+        return this;
+    }
+
+    public BacklogBuilder Points(double storyPoints)
+    {
+        _last!.StoryPoints = storyPoints;
         return this;
     }
 }

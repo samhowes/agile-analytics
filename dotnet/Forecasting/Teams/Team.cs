@@ -22,7 +22,8 @@ public class Team(Predictor predictor)
 
     public void Start(WorkItem item)
     {
-        Start(item, Contributor(item.AssignedTo!.UserEmail!));
+        var contributor = item.Contributor ?? Contributor(item.AssignedTo!.UserEmail!);
+        Start(item, contributor);
     }
 
     public void Start(WorkItem item, Contributor contributor)
@@ -43,7 +44,7 @@ public class Team(Predictor predictor)
             it.WorkState = WorkState.Active;
             if (it.WorkState < WorkState.Active)
             {
-                it.StartedAt = predictor.Clock.Now;
+                it.StartedAt ??= predictor.Clock.Now;
             }
             it = it.Parent;
         }
