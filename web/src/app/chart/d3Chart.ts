@@ -7,7 +7,7 @@ import {ChartBox, Margins} from "@app/chart/chartBox";
 export abstract class D3Chart<TConfig, TData> {
   init$ = new Subject<void>();
   config!: TConfig
-  protected data!: TData;
+  data!: TData;
 
   protected svgElement!: SVGSVGElement;
   protected svg!: d3.Selection<SVGSVGElement, any, any, any>;

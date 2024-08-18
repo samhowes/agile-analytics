@@ -13,6 +13,7 @@ public class GanttController(Forecaster forecaster) : ControllerBase
     public List<GanttItem> Forecast()
     {
         var predictor = new Predictor(forecaster.Clock, new PredictorConfig());
+        forecaster.Clock.Set(new DateTime(2025, 1, 1));
         var team = new Team(predictor);
         var jim = team.Contributor("jim@samhowes.com");
         var dwight = team.Contributor("dwight@samhowes.com");

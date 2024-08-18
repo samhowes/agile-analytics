@@ -2,9 +2,11 @@ import {D3Chart} from "@app/chart/d3Chart";
 import {GanttConfig} from "@app/gantt/ganttConfig";
 import {GanttItem, WorkItem} from "@app/data/work-item.service";
 import {HoverChart} from "@app/chart/hoverChart";
-import {ContainerSelection} from "@app/chart/d3";
+import {ContainerSelection, ElementSelection} from "@app/chart/d3";
 import * as d3 from "d3";
 import {TimeBucket} from "@app/burndown/timeBucket";
+import {Renderer2} from "@angular/core";
+import {ObjMap} from "@lib/objMap";
 
 export class GanttSlot {}
 
@@ -14,12 +16,16 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
 
   private seriesGroup!: ContainerSelection
 
-  private xScale!: d3.ScaleLinear<number, number>
+  private xScale!: d3.ScaleTime<number, number, never>;
   private yScale!: d3.ScaleBand<GanttSlot>
+
+  private container!: ElementSelection<HTMLDivElement>;
+
+  private map = new Map<GanttItem, ElementSelection<HTMLElement>>()
 
   override init(config: GanttConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement);
-    this.xScale = d3.scaleLinear()
+    this.xScale = d3.scaleTime<number, number>()
     this.yScale = d3.scaleBand<GanttSlot>()
 
     this.xAxis = this.svg.append('g')
@@ -38,9 +44,25 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
 
   override setSizes() {
     super.setSizes()
-    // this.xScale.range([this.box.inner.left, this.box.inner.right])
+
+    this.xScale.range([this.box.inner.left, this.box.inner.right])
     // this.yScale.range([this.box.inner.bottom, this.box.inner.top])
     // this.height.range([0, this.box.inner.height])
+  }
+
+  override setData(data: GanttItem[]) {
+    super.setData(data)
+    let min = data[0].startedAt
+    let max = data[0].completedAt
+    for (const item of data) {
+      if (item.startedAt > min) {
+        min = item.startedAt
+      }
+      if (item.completedAt > max) {
+        max = item.completedAt
+      }
+    }
+    this.xScale.domain([min, max])
   }
 
   override onResize(): void {
@@ -50,5 +72,26 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
   }
 
   setHover(element: HTMLElement): void {
+  }
+
+  setHtmlContainer(element: HTMLDivElement) {
+    this.container = d3.select(element)
+  }
+
+  registerElement(item: GanttItem, htmlElement: HTMLElement, renderer: Renderer2) {
+    const element = d3.select(htmlElement)
+    this.map.set(item, element)
+
+    let offset = 0;
+    if (item.parent) {
+      offset = this.xScale(item.parent.startedAt)
+    }
+
+    const start = this.xScale(item.startedAt) - offset
+    const end = this.xScale(item.completedAt) - offset
+    const width  = end - start;
+
+    element.style("left", `${start}px`)
+    element.style("width", `${width}px`)
   }
 }

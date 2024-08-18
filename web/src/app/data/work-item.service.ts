@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, Observable, tap} from "rxjs";
 import seedrandom from 'seedrandom';
 import {HttpClient} from "@angular/common/http";
 
@@ -13,10 +13,12 @@ export interface WorkItem {
 
 export class WorkItems {
   static rand = seedrandom("1234")
+
   static id(): number {
-    return Math.floor(this.rand()*10000)
+    return Math.floor(this.rand() * 10000)
 
   }
+
   static completed(title: string, points: number, time: number): WorkItem {
     return {
       id: this.id(),
@@ -29,13 +31,23 @@ export class WorkItems {
 }
 
 export interface GanttItem {
+  id: string
+  type: string
+  title: string
+  points: number
+  contributor: string
+  startedAt: Date
+  completedAt: Date
+  children: GanttItem[]
 
+  parent: GanttItem|null
 }
 
 @Injectable({providedIn: 'root'})
 export class WorkItemService {
   constructor(private http: HttpClient) {
   }
+
   getCompleted(): Observable<WorkItem[]> {
     return new BehaviorSubject<WorkItem[]>([
       WorkItems.completed("Add hover over Work Item", 3, 10),
@@ -46,6 +58,17 @@ export class WorkItemService {
   }
 
   getGantt(): Observable<GanttItem[]> {
+    const visit = (items: GanttItem[], parent: GanttItem|null) => {
+      for (const item of items) {
+        item.startedAt = new Date(item.startedAt)
+        item.completedAt = new Date(item.completedAt)
+        item.parent = parent
+        visit(item.children, item)
+      }
+    }
     return this.http.get<GanttItem[]>('api/gantt/forecast')
+      .pipe(tap(items => {
+        visit(items, null)
+      }))
   }
 }

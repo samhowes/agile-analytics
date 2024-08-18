@@ -4,6 +4,13 @@
   </div>
   <svg class="d3-svg" #svg>
   </svg>
+  <div class="html-container" #htmlContainer>
+    @if (chartInit()) {
+      @for (item of chart.data; track item.id) {
+        <gantt-item [item]="item"></gantt-item>
+      }
+    }
+  </div>
   <div class="overlay" *ngIf="configureOpen()">
     <configure-gantt [config]="menuConfig" (onClose)="closeConfigure($event)"></configure-gantt>
   </div>
