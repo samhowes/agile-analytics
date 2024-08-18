@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{66865103
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forecasting", "Tests\Forecasting\Forecasting.csproj", "{19CD811E-B04C-4060-B6CC-4AD9A05C21F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{A0EFB66E-3666-4888-89E7-7703EC89F315}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{19CD811E-B04C-4060-B6CC-4AD9A05C21F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19CD811E-B04C-4060-B6CC-4AD9A05C21F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19CD811E-B04C-4060-B6CC-4AD9A05C21F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0EFB66E-3666-4888-89E7-7703EC89F315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0EFB66E-3666-4888-89E7-7703EC89F315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0EFB66E-3666-4888-89E7-7703EC89F315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0EFB66E-3666-4888-89E7-7703EC89F315}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{19CD811E-B04C-4060-B6CC-4AD9A05C21F6} = {66865103-7CDF-4907-883C-DE7BAB7FA2D8}
