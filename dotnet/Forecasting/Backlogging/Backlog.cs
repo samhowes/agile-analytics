@@ -36,6 +36,7 @@ public class Backlog(BacklogConfig config, Team team)
                 WorkItemState.New => WorkState.New,
                 WorkItemState.Active => WorkState.Active,
                 WorkItemState.Completed => WorkState.Completed,
+                _ => throw new ArgumentOutOfRangeException()
             };
             
             item.Workable = config.Workable.Contains(item.Type);
@@ -50,7 +51,7 @@ public class Backlog(BacklogConfig config, Team team)
             if (item.AssignedTo?.UserEmail != null)
                 item.Contributor = Team.Contributor(item.AssignedTo.UserEmail);
             
-            if (item.WorkState == WorkState.Active && item.AssignedTo?.UserEmail == null)
+            if (item.WorkState == WorkState.Active && item.Contributor == null)
                 item.WorkState = WorkState.New;
             
             item.PointsRemaining = item.WorkState == WorkState.Completed ? 0.0 : item.StoryPoints;
@@ -83,6 +84,8 @@ public class Backlog(BacklogConfig config, Team team)
                     // add a placeholder to add default points to this parent item
                     item.Children.Add(Placeholder(item));
                 }
+
+                return true;
             })
             .OnAscend((item) =>
             {
@@ -130,7 +133,7 @@ public class Backlog(BacklogConfig config, Team team)
             ParentId = parent.Id,
             Parent = parent,
             Title = "[Placeholder]",
-            WorkState = WorkState.Active,
+            WorkState = WorkState.New,
             StoryPoints = parent.StoryPoints ?? config.DefaultStoryPoints,
             Type = config.Workable.First(),
             Workable = true,

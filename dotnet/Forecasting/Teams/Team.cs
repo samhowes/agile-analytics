@@ -49,4 +49,10 @@ public class Team(Predictor predictor)
             it = it.Parent;
         }
     }
+
+    public void Queue(WorkItem item)
+    {
+        var queue = item.Contributor?.Work ?? Unassigned;
+        queue.Push(item);
+    }
 }

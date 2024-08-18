@@ -2,10 +2,17 @@ namespace SamHowes.Analytics.Forecasting.Backlogging;
 
 public class BacklogIterator
 {
-    private Action<WorkItem>? _descend;
+    private Func<WorkItem, bool>? _shouldSkip;
+    private Func<WorkItem, bool>? _descend;
     private Action<WorkItem>? _ascend;
-
-    public BacklogIterator OnDescend(Action<WorkItem> descend)
+    
+    public BacklogIterator Skip(Func<WorkItem, bool> shouldSkip)
+    {
+        _shouldSkip = shouldSkip;
+        return this;
+    }
+    
+    public BacklogIterator OnDescend(Func<WorkItem, bool> descend)
     {
         _descend = descend;
         return this;
@@ -21,9 +28,19 @@ public class BacklogIterator
     {
         foreach (var workItem in workItems)
         {
-            _descend?.Invoke(workItem);
+            if (_shouldSkip != null && _shouldSkip(workItem))
+                continue;
+            
+            if (_descend != null)
+            {
+                var result = _descend(workItem);
+                if (!result)
+                    break;
+            }
+            
             if (workItem.Children.Count != 0)
                 Iterate(workItem.Children);
+            
             _ascend?.Invoke(workItem);
         }
     }
