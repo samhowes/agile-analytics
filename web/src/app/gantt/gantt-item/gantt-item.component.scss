@@ -2,20 +2,31 @@
   box-sizing: content-box;
   display: flex;
   flex-direction: column;
-  border: 2px solid;
-  border-left-width: 5px;
   position: relative;
 
-  border-radius: 2px;
+  overflow: hidden;
+
+  color: rgb(202, 205, 212);
+
+  background: rgba(0,0,0,.05);
+  padding: 5px 0;
+  border-radius: 19px;
 }
 
 .header {
   font-size: 1.1rem;
-  padding: 5px;
+  padding: 2px 19px;
+  border-radius: 19px;
+  &.parent {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
 }
+
+
 .body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   padding: 4px 0;
 }

@@ -41,6 +41,7 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
 
   override reInit() {
     this.setSizes()
+    this.setAxes()
   }
 
   override setSizes() {
@@ -49,6 +50,12 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
     this.xScale.range([this.box.inner.left, this.box.inner.right])
     // this.yScale.range([this.box.inner.bottom, this.box.inner.top])
     // this.height.range([0, this.box.inner.height])
+  }
+
+  private setAxes() {
+    this.xAxis
+      .attr('transform', `translate(0, ${this.box.inner.top})`)
+      .call(d3.axisTop(this.xScale))
   }
 
   override setData(data: GanttItem[]) {
@@ -64,9 +71,11 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
       }
     }
     this.xScale.domain([min, max])
+    this.setAxes()
   }
 
   override onResize(): void {
+    this.setAxes()
   }
 
   override draw(shouldAnimate: boolean): void {
@@ -84,13 +93,13 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
     this.map.set(item, element)
 
     let offset = 0;
-    let inset = 0;
+    let inset = 5;
     if (item.parent) {
       offset = this.xScale(item.parent.startedAt)
       inset += 5
-      if (item.parent.parent) {
-        inset += 5;
-      }
+      // if (item.parent.parent) {
+      //   inset += 5;
+      // }
     }
 
     const start = this.xScale(item.startedAt) - offset
@@ -99,9 +108,6 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
 
     element.style("left", `${start}px`)
     element.style("width", `${width}px`)
-
-    if (!isTopLevel)
-      return
 
     this.colorManager.style(element)
   }

@@ -8,9 +8,9 @@ export class GanttItemColors {
   constructor(public primary: Color) {
     this.border = primary.clone()
     this.header = primary.clone()
-    this.header.lighten()
+    // this.header.lighten()
     this.body = this.header.clone()
-    this.body.lighten()
+    // this.body.lighten()
   }
 }
 
@@ -19,7 +19,7 @@ export class ColorManager {
   private index = 0;
 
   constructor() {
-    this.colors.push(new GanttItemColors(new Color("#ef0000")))
+    this.colors.push(new GanttItemColors(new Color("#33466e")))
   }
 
   advance() {
@@ -30,7 +30,7 @@ export class ColorManager {
     const colors = this.colors[this.index]
 
     const border = colors.primary.toString();
-    element.style('border-color', border)
+    element.select('.header').style('border-color', border)
 
     element.select("div.header").style('background', colors.header.toString())
     element.select("div.body").style('background', colors.body.toString())

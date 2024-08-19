@@ -1,9 +1,11 @@
-<div class="header">
+<div class="header" [ngClass]="item().children.length ? 'parent' : ''">
   <span>{{ item().title }}</span>
 </div>
-<div class="body">
-  @for (child of item().children; track child.id) {
-    <gantt-item [item]="child"
-    ></gantt-item>
-  }
-</div>
+@if (item().children.length) {
+  <div class="body">
+    @for (child of item().children; track child.id) {
+      <gantt-item [item]="child"
+      ></gantt-item>
+    }
+  </div>
+}
