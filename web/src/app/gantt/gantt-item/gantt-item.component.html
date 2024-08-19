@@ -1,5 +1,9 @@
-<span>{{item().title}}</span>
-@for (child of item().children; track child.id) {
-  <gantt-item [item]="child"
-  ></gantt-item>
-}
+<div class="header">
+  <span>{{ item().title }}</span>
+</div>
+<div class="body">
+  @for (child of item().children; track child.id) {
+    <gantt-item [item]="child"
+    ></gantt-item>
+  }
+</div>

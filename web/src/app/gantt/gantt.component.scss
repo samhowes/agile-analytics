@@ -1,5 +1,7 @@
+@use "sass:map";
 @use "utils" as *;
 @use "d3" as *;
+@use "theme" as *;
 
 :host {
   @extend .d3-svg-container;
@@ -20,6 +22,10 @@
     position: absolute;
     top:0;
   }
+}
+
+.top-level-0 {
+  --gantt-color: #ef0000; // map.get($red, 50)
 }
 
 

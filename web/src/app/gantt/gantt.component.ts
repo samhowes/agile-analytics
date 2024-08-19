@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, inject, OnInit, signal, viewChild} from '@angular/core';
 import {MatIcon} from "@angular/material/icon";
 import {MatIconButton} from "@angular/material/button";
-import {NgIf, NgStyle} from "@angular/common";
+import {NgClass, NgIf, NgStyle} from "@angular/common";
 import {SpinnerOverlay} from "@app/components/spinner-overlay.component";
 import {WorkItemService} from "@app/data/work-item.service";
 import {combineLatest} from "rxjs";
@@ -20,7 +20,8 @@ import {GanttItemComponent} from "@app/gantt/gantt-item/gantt-item.component";
     NgIf,
     SpinnerOverlay,
     GanttItemComponent,
-    NgStyle
+    NgStyle,
+    NgClass
   ],
   templateUrl: './gantt.component.html',
   styleUrl: './gantt.component.scss',
