@@ -1,12 +1,11 @@
 import {D3Chart} from "@app/chart/d3Chart";
 import {GanttConfig} from "@app/gantt/ganttConfig";
-import {GanttItem, WorkItem} from "@app/data/work-item.service";
+import {GanttItem} from "@app/data/work-item.service";
 import {HoverChart} from "@app/chart/hoverChart";
 import {ContainerSelection, ElementSelection} from "@app/chart/d3";
 import * as d3 from "d3";
-import {TimeBucket} from "@app/burndown/timeBucket";
-import {Renderer2} from "@angular/core";
-import {ObjMap} from "@lib/objMap";
+import Color from "colorjs.io";
+import {ColorManager} from "@app/gantt/colorManager";
 
 export class GanttSlot {}
 
@@ -20,6 +19,8 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
   private yScale!: d3.ScaleBand<GanttSlot>
 
   private container!: ElementSelection<HTMLDivElement>;
+
+  colorManager = new ColorManager()
 
   private map = new Map<GanttItem, ElementSelection<HTMLElement>>()
 
@@ -78,20 +79,31 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
     this.container = d3.select(element)
   }
 
-  registerElement(item: GanttItem, htmlElement: HTMLElement, renderer: Renderer2) {
+  registerElement(item: GanttItem, htmlElement: HTMLElement, isTopLevel: boolean) {
     const element = d3.select(htmlElement)
     this.map.set(item, element)
 
     let offset = 0;
+    let inset = 0;
     if (item.parent) {
       offset = this.xScale(item.parent.startedAt)
+      inset += 5
+      if (item.parent.parent) {
+        inset += 5;
+      }
     }
 
     const start = this.xScale(item.startedAt) - offset
     const end = this.xScale(item.completedAt) - offset
-    const width  = end - start;
+    const width  = end - start - inset;
 
     element.style("left", `${start}px`)
     element.style("width", `${width}px`)
+
+    if (!isTopLevel)
+      return
+
+    this.colorManager.style(element)
   }
 }
+

@@ -1,8 +1,9 @@
 :host {
-  box-sizing: border-box;
+  box-sizing: content-box;
   display: flex;
   flex-direction: column;
   border: 2px solid;
+  border-left-width: 5px;
   position: relative;
 
   border-radius: 2px;
@@ -11,4 +12,10 @@
 .header {
   font-size: 1.1rem;
   padding: 5px;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
 }

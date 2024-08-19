@@ -8,7 +8,7 @@
     <div class="html-container" #htmlContainer>
       @if (chartInit()) {
         @for (item of chart.data; track item.id) {
-          <gantt-item [item]="item"></gantt-item>
+          <gantt-item [item]="item" [isTopLevel]="true" class="top-level-0"></gantt-item>
         }
       }
     </div>

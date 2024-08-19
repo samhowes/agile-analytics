@@ -23,6 +23,7 @@
     "@types/d3": "^7.4.3",
     "@types/seedrandom": "^3.0.8",
     "autoprefixer": "^10.4.20",
+    "colorjs.io": "^0.5.2",
     "d3": "^7.9.0",
     "postcss": "^8.4.41",
     "rxjs": "~7.8.0",

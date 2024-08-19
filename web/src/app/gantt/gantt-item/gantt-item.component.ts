@@ -16,15 +16,16 @@ import {ObjMap} from "@lib/objMap";
 })
 export class GanttItemComponent implements OnInit, AfterViewInit {
   item = input.required<GanttItem>()
+  isTopLevel = input<boolean>(false)
 
   chart = inject(GanttChart)
   style: ObjMap<any> = {left: "20px"};
 
-  constructor(private ref: ElementRef, private renderer: Renderer2) {
+  constructor(private ref: ElementRef) {
   }
 
   ngOnInit() {
-    this.chart.registerElement(this.item(), this.ref.nativeElement, this.renderer)
+    this.chart.registerElement(this.item(), this.ref.nativeElement, this.isTopLevel())
   }
 
   ngAfterViewInit(): void {
