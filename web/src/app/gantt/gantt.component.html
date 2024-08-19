@@ -2,14 +2,16 @@
   <div class="toolbar flex flex-row-reverse">
     <button mat-icon-button (click)="showConfigure()"><mat-icon>tune</mat-icon></button>
   </div>
-  <svg class="d3-svg" #svg>
-  </svg>
-  <div class="html-container" #htmlContainer>
-    @if (chartInit()) {
-      @for (item of chart.data; track item.id) {
-        <gantt-item [item]="item"></gantt-item>
+  <div class="container d3-svg-container">
+    <svg class="d3-svg" #svg>
+    </svg>
+    <div class="html-container" #htmlContainer>
+      @if (chartInit()) {
+        @for (item of chart.data; track item.id) {
+          <gantt-item [item]="item"></gantt-item>
+        }
       }
-    }
+    </div>
   </div>
   <div class="overlay" *ngIf="configureOpen()">
     <configure-gantt [config]="menuConfig" (onClose)="closeConfigure($event)"></configure-gantt>

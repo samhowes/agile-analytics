@@ -28,7 +28,7 @@ import {GanttItemComponent} from "@app/gantt/gantt-item/gantt-item.component";
 })
 export class GanttComponent implements OnInit, AfterViewInit {
   svgElement = viewChild.required<ElementRef<SVGSVGElement>>('svg');
-  htmlContainer = viewChild.required<ElementRef<HTMLDivElement>>('htmlContainer');
+  // htmlContainer = viewChild.required<ElementRef<HTMLDivElement>>('htmlContainer');
   hoverElement = viewChild.required<ElementRef<HTMLDivElement>>('hoverElement');
   protected chart = inject(GanttChart);
   private workItemService = inject(WorkItemService);
@@ -51,7 +51,7 @@ export class GanttComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.chart.setHover(this.hoverElement().nativeElement);
-    this.chart.setHtmlContainer(this.htmlContainer().nativeElement);
+    // this.chart.setHtmlContainer(this.htmlContainer().nativeElement);
     this.chart.init(this.config, this.svgElement().nativeElement);
   }
 
