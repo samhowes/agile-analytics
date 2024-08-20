@@ -17,7 +17,7 @@ public class GanttController(Forecaster forecaster) : ControllerBase
         var team = new Team(predictor);
         var jim = team.Contributor("jim@samhowes.com");
         var dwight = team.Contributor("dwight@samhowes.com");
-        var mike = team.Contributor("mike@samhowes.com");
+        // var mike = team.Contributor("mike@samhowes.com");
         var backlogConfig = BacklogConfig.DefaultAzure();
         var backlog = new Backlog(backlogConfig, team);
         
@@ -30,6 +30,16 @@ public class GanttController(Forecaster forecaster) : ControllerBase
             .Story("Research paper thickness needs")
             .Story("Call suppliers to provide costs")
             .Story("Present costs to client")
+            
+            .Epic("Optimize pipeline")
+            .Feature("Client acquisition")
+            .Story("Fix call rotations")
+            .Story("Reticulate splines")
+            .Story("Enhance welcoming reception")
+            
+            .Feature("Delivery to client")
+            .Story("Rearrange warehouse")
+            .Story("Buy new forklift")
             .Build();
         
         forecaster.Forecast(backlog);

@@ -25,7 +25,6 @@ export class GanttItemComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.chart.registerElement(this.item(), this.ref.nativeElement, this.isTopLevel())
   }
 
   ngAfterViewInit(): void {

@@ -3,15 +3,8 @@
     <button mat-icon-button (click)="showConfigure()"><mat-icon>tune</mat-icon></button>
   </div>
   <div class="container d3-svg-container">
-    <svg class="d3-svg" #svg>
-    </svg>
-    <div class="html-container" #htmlContainer>
-      @if (chartInit()) {
-        @for (item of chart.data; track item.id) {
-          <gantt-item [item]="item" [isTopLevel]="true" [ngClass]="item.children.length ? 'parent' : ''"></gantt-item>
-        }
-      }
-    </div>
+    <div class="html-container" #htmlContainer></div>
+    <svg class="d3-svg" #svg></svg>
   </div>
   <div class="overlay" *ngIf="configureOpen()">
     <configure-gantt [config]="menuConfig" (onClose)="closeConfigure($event)"></configure-gantt>

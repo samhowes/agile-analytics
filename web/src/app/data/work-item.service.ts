@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {BehaviorSubject, Observable, tap} from "rxjs";
 import seedrandom from 'seedrandom';
 import {HttpClient} from "@angular/common/http";
+import {DateTime} from "luxon";
 
 export interface WorkItem {
   assignee: string;
@@ -36,8 +37,8 @@ export interface GanttItem {
   title: string
   points: number
   contributor: string
-  startedAt: Date
-  completedAt: Date
+  startedAt: DateTime
+  completedAt: DateTime
   children: GanttItem[]
 
   parent: GanttItem|null
@@ -60,8 +61,8 @@ export class WorkItemService {
   getGantt(): Observable<GanttItem[]> {
     const visit = (items: GanttItem[], parent: GanttItem|null) => {
       for (const item of items) {
-        item.startedAt = new Date(item.startedAt)
-        item.completedAt = new Date(item.completedAt)
+        item.startedAt = DateTime.fromISO(item.startedAt as unknown as string)
+        item.completedAt = DateTime.fromISO(item.completedAt  as unknown as string)
         item.parent = parent
         visit(item.children, item)
       }

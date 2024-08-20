@@ -4,35 +4,61 @@ import {GanttItem} from "@app/data/work-item.service";
 import {HoverChart} from "@app/chart/hoverChart";
 import {ContainerSelection, ElementSelection} from "@app/chart/d3";
 import * as d3 from "d3";
-import Color from "colorjs.io";
-import {ColorManager} from "@app/gantt/colorManager";
+import {DateTime} from "luxon";
 
-export class GanttSlot {}
+export class GanttData {
+  totalDays!: number;
+  totalRows!: number;
+  minDate!: DateTime;
+  maxDate!: DateTime;
+  constructor(private data: GanttItem[]) {
+    this.processData()
+  }
 
-export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements HoverChart {
-  private xAxis!: ContainerSelection
-  private yAxis!: ContainerSelection
+  private processData() {
+    let min = this.data[0].startedAt
+    let max = this.data[0].completedAt
+    let itemCount = 0
 
-  private seriesGroup!: ContainerSelection
+    const visit = (items: GanttItem[]) => {
+      for (const item of items) {
+        itemCount++;
+        if (item.startedAt < min) {
+          min = item.startedAt
+        }
+        if (item.completedAt > max) {
+          max = item.completedAt
+        }
 
+        if (item.children.length)
+          visit(item.children)
+      }
+    }
+    visit(this.data)
+
+    min = min.minus({day: min.weekday-1})  // move min to Monday
+    max = max.plus({day: 7 - max.weekday}) // move max to sunday
+
+    this.minDate = min
+    this.maxDate = max
+    this.totalDays = max.diff(min, ['days']).days
+    this.totalRows = itemCount
+  }
+}
+
+export class GanttChart extends D3Chart<GanttConfig, GanttData>{
   private xScale!: d3.ScaleTime<number, number, never>;
-  private yScale!: d3.ScaleBand<GanttSlot>
 
-  private container!: ElementSelection<HTMLDivElement>;
+  private html!: ElementSelection<HTMLDivElement>;
 
-  colorManager = new ColorManager()
-
-  private map = new Map<GanttItem, ElementSelection<HTMLElement>>()
+  private sizes = {
+    dayWidth: 56,
+    rowHeight: 40
+  }
 
   override init(config: GanttConfig, svgElement: SVGSVGElement) {
     super.init(config, svgElement);
     this.xScale = d3.scaleTime<number, number>()
-    this.yScale = d3.scaleBand<GanttSlot>()
-
-    this.xAxis = this.svg.append('g')
-    this.yAxis = this.svg.append('g')
-
-    this.seriesGroup = this.svg.append("g").attr('class', 'series-group')
 
     this.reInit()
 
@@ -41,7 +67,6 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
 
   override reInit() {
     this.setSizes()
-    this.setAxes()
   }
 
   override setSizes() {
@@ -52,59 +77,43 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
     // this.height.range([0, this.box.inner.height])
   }
 
-  private setAxes() {
-    this.xAxis
-      .attr('transform', `translate(0, ${this.box.inner.top})`)
-      .call(d3.axisTop(this.xScale))
-  }
 
-  override setData(data: GanttItem[]) {
+  override setData(data: GanttData) {
     super.setData(data)
-    let min = data[0].startedAt
-    let max = data[0].completedAt
-    for (const item of data) {
-      if (item.startedAt < min) {
-        min = item.startedAt
-      }
-      if (item.completedAt > max) {
-        max = item.completedAt
-      }
-    }
-    this.xScale.domain([min, max])
-    this.setAxes()
+
+    this.html
+      .style('width', (this.data.totalDays * this.sizes.dayWidth) + 'px')
+      .style('height', (this.data.totalRows * this.sizes.rowHeight) + 'px')
+
+    this.drawHeader()
+
   }
 
   override onResize(): void {
-    this.setAxes()
   }
 
   override draw(shouldAnimate: boolean): void {
   }
 
-  setHover(element: HTMLElement): void {
-  }
-
   setHtmlContainer(element: HTMLDivElement) {
-    this.container = d3.select(element)
+    this.html = d3.select(element)
   }
 
-  registerElement(item: GanttItem, htmlElement: HTMLElement, isTopLevel: boolean) {
-    const element = d3.select(htmlElement)
-    this.map.set(item, element)
-
-    let offset = 20;
-    let inset = 5;
-    if (item.parent) {
-      offset = this.xScale(item.parent.startedAt)
-      inset += 5
+  private drawHeader() {
+    const header = this.html.append('div')
+      .classed('header', true)
+      .style('display', 'flex')
+    for (let i = 0; i < this.data.totalDays; i++) {
+      const label = this.data.minDate.plus({days: i}).toFormat('ccc')
+      const div = header.append('div');
+      div
+        // .style('position', 'absolute')
+        // .style('left', (i * this.sizes.dayWidth) + 'px')
+        .style('width', this.sizes.dayWidth + 'px')
+      div
+        .append('span')
+        .text(label)
     }
-
-    const start = this.xScale(item.startedAt) - offset
-    const end = this.xScale(item.completedAt) - offset
-    const width  = end - start - inset;
-
-    element.style("left", `${start}px`)
-    element.style("width", `${width}px`)
   }
 }
 

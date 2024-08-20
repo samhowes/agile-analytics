@@ -11,17 +11,17 @@
 
 .container {
   height: 100%;
-  width: 100%;
+  min-width: 100%;
   position: relative;
+  overflow: scroll;
   .d3-svg {
     pointer-events: none;
     z-index: 10;
   }
 
   .html-container {
-    left: 20px;
-    position: absolute;
-    top: 30px;
+    //max-width: 100%;
+    background: rgba(255,0,0,.2)
   }
 }
 
