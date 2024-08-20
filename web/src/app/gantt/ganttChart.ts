@@ -63,7 +63,7 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
     let min = data[0].startedAt
     let max = data[0].completedAt
     for (const item of data) {
-      if (item.startedAt > min) {
+      if (item.startedAt < min) {
         min = item.startedAt
       }
       if (item.completedAt > max) {
@@ -92,14 +92,11 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
     const element = d3.select(htmlElement)
     this.map.set(item, element)
 
-    let offset = 0;
+    let offset = 20;
     let inset = 5;
     if (item.parent) {
       offset = this.xScale(item.parent.startedAt)
       inset += 5
-      // if (item.parent.parent) {
-      //   inset += 5;
-      // }
     }
 
     const start = this.xScale(item.startedAt) - offset
@@ -108,8 +105,6 @@ export class GanttChart extends D3Chart<GanttConfig, GanttItem[]> implements Hov
 
     element.style("left", `${start}px`)
     element.style("width", `${width}px`)
-
-    this.colorManager.style(element)
   }
 }
 

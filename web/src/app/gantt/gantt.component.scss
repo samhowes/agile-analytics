@@ -19,11 +19,16 @@
   }
 
   .html-container {
+    left: 20px;
     position: absolute;
     top: 30px;
   }
 }
 
+::ng-deep gantt-item.parent {
+  padding: 5px 0;
+  border: 1px solid rgba(0,0,0,.1);
+}
 //.top-level-0 {
 //  $primary-color: map.get($red, 50);
 //  //border-color: $primary-color;

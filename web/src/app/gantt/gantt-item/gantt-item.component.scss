@@ -1,3 +1,6 @@
+@use "sass:map";
+@use "theme" as *;
+
 :host {
   box-sizing: content-box;
   display: flex;
@@ -6,17 +9,19 @@
 
   overflow: hidden;
 
-  color: rgb(202, 205, 212);
+  //color: rgb(202, 205, 212);
+  color: #333;
 
   background: rgba(0,0,0,.05);
-  padding: 5px 0;
   border-radius: 19px;
 }
 
 .header {
-  font-size: 1.1rem;
   padding: 2px 19px;
   border-radius: 19px;
+
+  background-color: map.get($azure, 80);
+
   &.parent {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -27,6 +32,6 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
   padding: 4px 0;
 }
